@@ -99,3 +99,7 @@ class Cards {
 }
 
 const cards = new Cards();
+
+document.getElementById("add").addEventListener("click", () => {
+  cards.addCard()
+})

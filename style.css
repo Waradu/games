@@ -61,8 +61,26 @@ body {
 .cards {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 20px;
   padding: 70px;
+}
+
+.newcard {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #3f834d;
+  border-radius: 8px;
+  margin-inline: 20px;
+  cursor: url("assets/cursor_pointer.png") 1 12, auto !important;
+  order: 1;
+}
+.newcard span {
+  color: #3f834d;
+  font-size: 35px;
+  font-weight: 300;
 }
 
 .deck {

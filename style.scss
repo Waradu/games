@@ -1,3 +1,4 @@
+$light: #3f834d;
 $background: #31663c;
 $foreground: #2b5434;
 $dark: #1d3823;
@@ -7,6 +8,18 @@ $c_pointer: url("assets/cursor_pointer.png") 1 12, auto !important;
 $c_hold: url("assets/cursor_hold.png") 1 12, auto !important;
 $c_deny: url("assets/cursor_deny.png") 1 1, auto !important;
 
+$base:    #282c34;
+$mono-1:  #abb2bf;
+$mono-2:  #818896;
+$mono-3:  #5c6370;
+$hue-1:   #56b6c2;
+$hue-2:   #61aeee;
+$hue-3:   #c678dd;
+$hue-4:   #98c379;
+$hue-5:   #e06c75;
+$hue-5-2: #be5046;
+$hue-6:   #d19a66;
+$hue-6-2: #e6c07b;
 
 @font-face {
   font-family: 'joystix';
@@ -70,8 +83,27 @@ body {
 .cards {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 20px;
   padding: 70px;
+}
+
+.newcard {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed $light;
+  border-radius: 8px;
+  margin-inline: 20px;
+  cursor: $c_pointer;
+  order: 1;
+
+  span {
+    color: $light;
+    font-size: 35px;
+    font-weight: 300;
+  }
 }
 
 .deck {
