@@ -1,6 +1,6 @@
 @font-face {
   font-family: "joystix";
-  src: url("assets/joystix.otf") format("opentype");
+  src: url("../assets/joystix.otf") format("opentype");
 }
 * {
   margin: 0;
@@ -15,7 +15,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  cursor: url("assets/cursor_normal.png") 1 1, auto !important;
+  cursor: url("../assets/cursor_normal.png") 1 1, auto !important;
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
@@ -79,7 +79,7 @@ body {
   border: 2px dashed rgba(102, 255, 102, 0.1882352941);
   border-radius: 8px;
   margin-left: 20px;
-  cursor: url("assets/cursor_pointer.png") 8 12, auto !important;
+  cursor: url("../assets/cursor_pointer.png") 8 12, auto !important;
   order: 1;
 }
 .newcard span {
@@ -98,13 +98,13 @@ body {
 .staticCard {
   width: calc(11px * var(--scale));
   height: calc(18px * var(--scale));
-  cursor: url("assets/cursor_deny.png") 1 1, auto !important;
+  cursor: url("../assets/cursor_deny.png") 1 1, auto !important;
   transition: 0.2s;
   position: absolute;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1254901961));
   right: 0px;
   top: var(--stack);
-  background-image: url(assets/BJ_Cards.png);
+  background-image: url(../assets/BJ_Cards.png);
   background-repeat: no-repeat;
   background-size: 1800%;
   image-rendering: pixelated;
@@ -162,7 +162,7 @@ body {
   transition: all 0.2s, background 0s;
   width: 100%;
   height: 100%;
-  background-image: url(assets/BJ_Cards.png);
+  background-image: url(../assets/BJ_Cards.png);
   background-repeat: no-repeat;
   background-size: 1800%;
   image-rendering: pixelated;
@@ -225,7 +225,7 @@ body {
   bottom: 35px;
   font-size: 60px !important;
   font-weight: 900 !important;
-  cursor: url("assets/cursor_pointer.png") 8 12, auto !important;
+  cursor: url("../assets/cursor_pointer.png") 8 12, auto !important;
   transition: 0.5s;
   transition-timing-function: ease;
 }
