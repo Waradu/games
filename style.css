@@ -55,7 +55,6 @@ body {
 body {
   overflow: hidden;
   display: grid;
-  align-content: end;
 }
 
 .cards {
@@ -63,7 +62,13 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px;
-  padding: 70px;
+  padding-bottom: 50px;
+  align-self: end;
+}
+.cards.dealer {
+  align-self: start;
+  padding-top: 140px;
+  padding-bottom: 0;
 }
 
 .newcard {
@@ -71,14 +76,14 @@ body {
   height: 60px;
   display: grid;
   place-items: center;
-  border: 2px dashed #3f834d;
+  border: 2px dashed rgba(102, 255, 102, 0.1882352941);
   border-radius: 8px;
-  margin-inline: 20px;
-  cursor: url("assets/cursor_pointer.png") 1 12, auto !important;
+  margin-left: 20px;
+  cursor: url("assets/cursor_pointer.png") 8 12, auto !important;
   order: 1;
 }
 .newcard span {
-  color: #3f834d;
+  color: rgba(102, 255, 102, 0.1882352941);
   font-size: 35px;
   font-weight: 300;
 }
@@ -87,12 +92,14 @@ body {
   position: absolute;
   right: 40px;
   top: 45px;
+  display: none;
 }
 
 .staticCard {
   width: calc(11px * var(--scale));
   height: calc(18px * var(--scale));
   cursor: url("assets/cursor_deny.png") 1 1, auto !important;
+  transition: 0.2s;
   position: absolute;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1254901961));
   right: 0px;
@@ -115,34 +122,57 @@ body {
   right: -2px;
   rotate: 2deg;
 }
+.staticCard:last-child {
+  rotate: -2deg;
+}
 
+@keyframes scale {
+  from {
+    scale: 0;
+  }
+  to {
+    scale: 1;
+  }
+}
 .card {
-  width: calc(11px * var(--scale));
-  height: calc(18px * var(--scale));
-  cursor: url("assets/cursor_pointer.png") 1 12, auto !important;
+  scale: 1;
+  --width: 11px;
+  --heigth: 18px;
+  width: calc(var(--width) * var(--scale));
+  height: calc(var(--heigth) * var(--scale));
+  /* cursor: $c_pointer; */
   position: relative;
   transition: 0.2s;
   z-index: 9;
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1254901961));
+  animation: scale 0.3s ease-in-out forwards;
+  /* &:hover {
+    rotate: 0deg;
+    z-index: 1000;
+
+    .front {
+      scale: 1.5;
+    }
+  } */
 }
 .card .front,
 .card .back {
   position: absolute;
   transform-style: preserve-3d;
-  transition: 0.2s;
+  transition: all 0.2s, background 0s;
   width: 100%;
   height: 100%;
   background-image: url(assets/BJ_Cards.png);
   background-repeat: no-repeat;
   background-size: 1800%;
   image-rendering: pixelated;
-  background-position: calc(11px * var(--scale) * var(--i) * -1) calc(18px * var(--scale) * var(--t) * -1);
-  transform: perspective(400px) rotateX(180deg);
+  background-position: calc(var(--width) * var(--scale) * var(--i) * -1) calc(var(--heigth) * var(--scale) * var(--t) * -1);
+  transform: perspective(400px);
   backface-visibility: hidden;
 }
 .card .back {
-  background-position: calc(11px * var(--scale) * 16 * -1) calc(18px * var(--scale) * 0 * -1);
-  transform: perspective(400px) rotateX(360deg) rotateZ(180deg);
+  background-position: calc(var(--width) * var(--scale) * 15 * -1) calc(var(--heigth) * var(--scale) * 0 * -1);
+  transform: perspective(400px) rotateX(180deg) rotateZ(180deg);
 }
 .card:nth-child(1) {
   rotate: 6deg;
@@ -151,45 +181,56 @@ body {
   rotate: -2deg;
 }
 .card:nth-child(3) {
-  rotate: 1deg;
+  rotate: -1deg;
 }
-.card:hover {
-  z-index: 10;
+.card:nth-child(4) {
+  rotate: 2deg;
 }
-.card:hover .front,
-.card:hover .back {
-  transform: perspective(400px) rotateX(310deg);
+.card:nth-child(5) {
+  rotate: 3deg;
 }
-.card:hover .back {
-  transform: perspective(400px) rotateX(490deg) rotateZ(180deg);
+.card:nth-child(6) {
+  rotate: 5deg;
 }
-.card:active {
-  rotate: 0deg;
-  z-index: 1000;
-}
-.card:active .front,
-.card:active .back {
-  transform: perspective(400px) rotateX(360deg);
-}
-.card:active .back {
-  transform: perspective(400px) rotateX(540deg) rotateZ(180deg);
-}
-.card:active .front {
-  scale: 2;
+.card:nth-child(7) {
+  rotate: -2deg;
 }
 
-body:has(.card:active) {
-  background-color: #2b5434;
-  border: solid 20px #1d3823;
-}
-body:has(.card:active) .card:not(:active) {
-  filter: brightness(50%);
-}
+/* body:has(.card:hover) {
+  background-color: $foreground;
+  border: solid 20px $dark;
 
+  .card:not(:hover), .staticCard {
+    filter: brightness(70%);
+  }
+}
+ */
 .total {
   position: absolute;
-  right: 40px;
+  left: 40px;
   bottom: 30px;
+  text-align: end;
+}
+
+.dealertotal {
+  position: absolute;
+  left: 40px;
+  top: 30px;
+  text-align: end;
+}
+
+.restart {
+  position: absolute;
+  right: 40px;
+  bottom: 35px;
+  font-size: 60px !important;
+  font-weight: 900 !important;
+  cursor: url("assets/cursor_pointer.png") 8 12, auto !important;
+  transition: 0.5s;
+  transition-timing-function: ease;
+}
+.restart:hover {
+  rotate: 360deg;
 }
 
 /* .dragging {

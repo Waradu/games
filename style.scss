@@ -4,8 +4,8 @@ $foreground: #2b5434;
 $dark: #1d3823;
 
 $c_normal: url("assets/cursor_normal.png") 1 1, auto !important;
-$c_pointer: url("assets/cursor_pointer.png") 1 12, auto !important;
-$c_hold: url("assets/cursor_hold.png") 1 12, auto !important;
+$c_pointer: url("assets/cursor_pointer.png") 8 12, auto !important;
+$c_hold: url("assets/cursor_hold.png") 8 12, auto !important;
 $c_deny: url("assets/cursor_deny.png") 1 1, auto !important;
 
 $base:    #282c34;
@@ -77,7 +77,6 @@ body {
 body {
   overflow: hidden;
   display: grid;
-  align-content: end;
 }
 
 .cards {
@@ -85,7 +84,14 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px;
-  padding: 70px;
+  padding-bottom: 50px;
+  align-self: end;
+
+  &.dealer {
+    align-self: start;
+    padding-top: 140px;
+    padding-bottom: 0;
+  }
 }
 
 .newcard {
@@ -93,14 +99,14 @@ body {
   height: 60px;
   display: grid;
   place-items: center;
-  border: 2px dashed $light;
+  border: 2px dashed #66ff6630;
   border-radius: 8px;
-  margin-inline: 20px;
+  margin-left: 20px;
   cursor: $c_pointer;
   order: 1;
 
   span {
-    color: $light;
+    color: #66ff6630;
     font-size: 35px;
     font-weight: 300;
   }
@@ -110,12 +116,14 @@ body {
   position: absolute;
   right: 40px;
   top: 45px;
+  display: none;
 }
 
 .staticCard {
   width: calc(11px * var(--scale));
   height: calc(18px * var(--scale));
   cursor: $c_deny;
+  transition: 0.2s;
   position: absolute;
 
   filter: drop-shadow(0 0 5px #00000020);
@@ -139,6 +147,10 @@ body {
     rotate: 2deg;
   }
 
+  &:last-child {
+    rotate: -2deg;
+  }
+
   background-image: url(assets/BJ_Cards.png);
   background-repeat: no-repeat;
   background-size: 1800%;
@@ -147,36 +159,49 @@ body {
     calc(calc(calc(18px * var(--scale)) * var(--t)) * -1);
 }
 
+@keyframes scale {
+  from {
+    scale: 0;
+  }
+  to {
+    scale: 1;
+  }
+}
+
 .card {
-  width: calc(11px * var(--scale));
-  height: calc(18px * var(--scale));
-  cursor: $c_pointer;
+  scale: 1;
+  --width: 11px;
+  --heigth: 18px;
+  width: calc(var(--width) * var(--scale));
+  height: calc(var(--heigth) * var(--scale));
+  /* cursor: $c_pointer; */
   position: relative;
   transition: 0.2s;
   z-index: 9;
   filter: drop-shadow(0 0 5px #00000020);
+  animation: scale 0.3s ease-in-out forwards;
 
   .front,
   .back {
     position: absolute;
     transform-style: preserve-3d;
-    transition: 0.2s;
+    transition: all .2s, background 0s;
     width: 100%;
     height: 100%;
     background-image: url(assets/BJ_Cards.png);
     background-repeat: no-repeat;
     background-size: 1800%;
     image-rendering: pixelated;
-    background-position: calc(calc(calc(11px * var(--scale)) * var(--i)) * -1)
-      calc(calc(calc(18px * var(--scale)) * var(--t)) * -1);
-    transform: perspective(400px) rotateX(180deg);
+    background-position: calc(calc(calc(var(--width) * var(--scale)) * var(--i)) * -1)
+      calc(calc(calc(var(--heigth) * var(--scale)) * var(--t)) * -1);
+    transform: perspective(400px) /* rotateX(180deg) */;
     backface-visibility: hidden;
   }
   .back {
-    background-position: calc(calc(calc(11px * var(--scale)) * 16) * -1)
-      calc(calc(calc(18px * var(--scale)) * 0) * -1);
+    background-position: calc(calc(calc(var(--width) * var(--scale)) * 15) * -1)
+      calc(calc(calc(var(--heigth) * var(--scale)) * 0) * -1);
 
-    transform: perspective(400px) rotateX(360deg) rotateZ(180deg);
+    transform: perspective(400px) rotateX(180deg) rotateZ(180deg);
   }
 
   &:nth-child(1) {
@@ -186,51 +211,67 @@ body {
     rotate: -2deg;
   }
   &:nth-child(3) {
-    rotate: 1deg;
+    rotate: -1deg;
+  }
+  &:nth-child(4) {
+    rotate: 2deg;
+  }
+  &:nth-child(5) {
+    rotate: 3deg;
+  }
+  &:nth-child(6) {
+    rotate: 5deg;
+  }
+  &:nth-child(7) {
+    rotate: -2deg;
   }
 
-  &:hover {
-    z-index: 10;
-    .front,
-    .back {
-      transform: perspective(400px) rotateX(310deg);
-    }
-    .back {
-      transform: perspective(400px) rotateX(490deg) rotateZ(180deg);
-    }
-  }
-
-  &:active {
+  /* &:hover {
     rotate: 0deg;
     z-index: 1000;
 
-    .front,
-    .back {
-      transform: perspective(400px) rotateX(360deg);
-    }
-    .back {
-      transform: perspective(400px) rotateX(540deg) rotateZ(180deg);
-    }
-
     .front {
-      scale: 2;
+      scale: 1.5;
     }
-  }
+  } */
 }
 
-body:has(.card:active) {
+/* body:has(.card:hover) {
   background-color: $foreground;
   border: solid 20px $dark;
 
-  .card:not(:active) {
-    filter: brightness(50%);
+  .card:not(:hover), .staticCard {
+    filter: brightness(70%);
   }
 }
-
+ */
 .total {
   position: absolute;
-  right: 40px;
+  left: 40px;
   bottom: 30px;
+  text-align: end;
+}
+
+.dealertotal {
+  position: absolute;
+  left: 40px;
+  top: 30px;
+  text-align: end;
+}
+
+.restart {
+  position: absolute;
+  right: 40px;
+  bottom: 35px;
+  font-size: 60px !important;
+  font-weight: 900 !important;
+  cursor: $c_pointer;
+  transition: .5s;
+  transition-timing-function: ease;
+
+  &:hover {
+    rotate: 360deg;
+  }
 }
 
 /* .dragging {
