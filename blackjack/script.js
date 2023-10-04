@@ -250,7 +250,7 @@ class Cards {
   }
 
   check() {
-    if (this.total === 21) {
+    if (this.total === 21 && this.hand.length === 2) {
       document.querySelector(".total").innerHTML = "You: " + this.total;
       document.querySelector(".total").style.color = "green";
       document.getElementById("done").style.display = "none";
