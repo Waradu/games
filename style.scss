@@ -1,0 +1,88 @@
+$text: #fff;
+$inactive: #808080;
+$active: #adadad;
+$brown: #8f6b4a;
+$yellow: #fff598;
+$blue: #7ba8ff;
+$blueT: rgba(123, 167, 255, 70%);
+$green: #6cac5d;
+$red: #ff8383;
+$white: #ffffff;
+$app: rgba(10, 10, 10, 100%);
+$background: rgba(31, 31, 31, 100%);
+$foreground: rgba(45, 45, 45, 100%);
+
+$c_normal: url("../assets/cursor_normal.png") 1 1, auto !important;
+$c_pointer: url("../assets/cursor_pointer.png") 8 12, auto !important;
+$c_hold: url("../assets/cursor_hold.png") 8 12, auto !important;
+$c_deny: url("../assets/cursor_deny.png") 1 1, auto !important;
+
+
+@font-face {
+  font-family: 'joystix';
+  src: url('../assets/joystix.otf') format('opentype');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: white;
+  font-family: 'joystix';
+
+}
+
+html,
+body {
+  cursor: $c_normal;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  background-color: $app;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(40, 40, 40);
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(25, 25, 25);
+}
+
+a {
+  text-decoration: none;
+  cursor: $c_pointer;
+}
+
+.grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+
+  .item {
+    width: 200px;
+    height: 250px;
+    overflow: hidden;
+    text-align: center;
+
+    .image {
+      width: 100%;
+      image-rendering: pixelated;
+    }
+
+    .text {
+      font-size: 25px;
+    }
+  }
+}
