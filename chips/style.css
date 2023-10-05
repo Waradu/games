@@ -19,6 +19,8 @@ body {
   width: 100%;
   height: 100%;
   background-color: #30200b;
+  display: grid;
+  place-items: center;
   --scale: 6;
 }
 
@@ -47,8 +49,38 @@ body {
   background-repeat: no-repeat;
   background-size: 100%;
   image-rendering: pixelated;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+}
+.case .indicator {
+  height: 143px;
+  width: 42px;
+  border: 7px solid white;
+  margin-bottom: 61px;
+  opacity: 0;
+  margin-inline: -3px;
+  cursor: url("../assets/cursor_pointer.png") 8 12, auto !important;
+  position: relative;
+  transition: 0.05s;
+  display: flex;
+  justify-content: center;
+}
+.case .indicator:last-child {
+  margin-right: 2px;
+}
+.case .indicator:after {
+  content: attr(data-text);
+  background-color: white;
+  border-radius: 2px;
+  padding-inline: 8px;
+  color: black;
+  display: block;
   position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -95% -40%;
+  top: -45px;
+  min-width: -moz-max-content;
+  min-width: max-content;
+}
+.case .indicator:hover {
+  opacity: 1;
 }/*# sourceMappingURL=style.css.map */
