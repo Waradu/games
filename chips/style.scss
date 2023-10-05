@@ -1,36 +1,36 @@
-$light: #3f834d;
-$background: #31663c;
-$foreground: #2b5434;
-$dark: #1d3823;
+$light: #805821;
+$background: #5a3d14;
+$foreground: #6c4918;
+$dark: #30200b;
 
 $c_normal: url("../assets/cursor_normal.png") 1 1, auto !important;
 $c_pointer: url("../assets/cursor_pointer.png") 8 12, auto !important;
 $c_hold: url("../assets/cursor_hold.png") 8 12, auto !important;
 $c_deny: url("../assets/cursor_deny.png") 1 1, auto !important;
 
-$base:    #282c34;
-$mono-1:  #abb2bf;
-$mono-2:  #818896;
-$mono-3:  #5c6370;
-$hue-1:   #56b6c2;
-$hue-2:   #61aeee;
-$hue-3:   #c678dd;
-$hue-4:   #98c379;
-$hue-5:   #e06c75;
+$base: #282c34;
+$mono-1: #abb2bf;
+$mono-2: #818896;
+$mono-3: #5c6370;
+$hue-1: #56b6c2;
+$hue-2: #61aeee;
+$hue-3: #c678dd;
+$hue-4: #98c379;
+$hue-5: #e06c75;
 $hue-5-2: #be5046;
-$hue-6:   #d19a66;
+$hue-6: #d19a66;
 $hue-6-2: #e6c07b;
 
 @font-face {
-  font-family: 'joystix';
-  src: url('../assets/joystix.otf') format('opentype');
+  font-family: "joystix";
+  src: url("../assets/joystix.otf") format("opentype");
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'joystix';
+  font-family: "joystix";
   color: white;
   font-size: 26px;
 }
@@ -42,7 +42,9 @@ body {
   cursor: $c_normal;
   width: 100%;
   height: 100%;
-  background-color: $app;
+  background-color: $dark;
+
+  --scale: 6;
 }
 
 ::-webkit-scrollbar {
@@ -61,4 +63,17 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(25, 25, 25);
+}
+
+.case {
+  background-image: url(../assets/ChipsCasesNormal.png);
+  width: calc(82px * var(--scale));
+  height: calc(73px * var(--scale));
+  background-repeat: no-repeat;
+  background-size: 100%;
+  image-rendering: pixelated;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -95% -40%;
 }
