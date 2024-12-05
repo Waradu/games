@@ -1,5 +1,6 @@
 <template>
   <div class="page">
+    <Header />
     <NuxtPage />
   </div>
 </template>
@@ -27,7 +28,7 @@ body,
 #__nuxt {
   width: 100%;
   height: 100%;
-  background-color: #0a0a0a;
+  background-color: $background;
   color: white;
   font-family: commitMono, monospace;
   cursor: $cursor_normal;
@@ -48,6 +49,7 @@ input {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
 }
 
 ::-webkit-scrollbar {
