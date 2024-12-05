@@ -28,6 +28,11 @@ body,
   font-family: commitMono, monospace;
   cursor: $cursor_normal;
   overflow: hidden;
+  user-select: none;
+
+  &:has(.dragging) {
+    cursor: $cursor_hold;
+  }
 }
 
 a {

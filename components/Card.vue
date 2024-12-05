@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" ref="target" @mousedown="drag" @mouseup="stopDrag">
     <div class="front"></div>
     <div class="back"></div>
   </div>
@@ -7,6 +7,8 @@
 
 <script lang="ts" setup>
 import type { Card, Type } from "~/types/cards";
+
+const target = ref<HTMLElement>();
 
 const card: Card[] = [
   "A",
@@ -33,8 +35,59 @@ const props = defineProps<{
 }>();
 
 const scale = 6;
-const x = card.indexOf(props.card);
-const y = type.indexOf(props.type);
+const x = ref(card.indexOf(props.card));
+const y = ref(type.indexOf(props.type));
+
+const dx = ref(0);
+const dy = ref(0);
+const relx = ref(0);
+const rely = ref(0);
+const moving = ref(true);
+
+const drag = (e: MouseEvent) => {
+  if (!target.value) return;
+
+  const rect = target.value.getBoundingClientRect();
+  relx.value = e.clientX - rect.left;
+  rely.value = e.clientY - rect.top;
+
+  target.value.classList.add("dragging");
+  moving.value = true;
+};
+
+const stopDrag = (e: MouseEvent) => {
+  if (!target.value) return;
+
+  const elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY);
+
+  const dropElements = document.querySelectorAll(".drop");
+
+  console.log(dropElements);
+
+  dropElements.forEach((dropElement) => {
+    if (dropElement.contains(elementUnderMouse)) {
+      if (!target.value) return;
+      console.log(dropElement);
+      dropElement.appendChild(target.value);
+    }
+  });
+
+  relx.value = 0;
+  rely.value = 0;
+
+  target.value.classList.remove("dragging");
+  moving.value = false;
+};
+
+onMounted(() => {
+  document.addEventListener("mousemove", (e: MouseEvent) => {
+    dx.value = e.clientX;
+    dy.value = e.clientY;
+  });
+
+  document.addEventListener("mouseup", stopDrag);
+  document.addEventListener("mouseleave", stopDrag);
+});
 </script>
 
 <style lang="scss">
@@ -46,8 +99,8 @@ const y = type.indexOf(props.type);
   height: calc(var(--height) * var(--scale));
   position: relative;
   transform-style: preserve-3d;
-  transition: all 0.2s, background 0s;
-  transform: perspective(400px) rotateX(45deg);
+  transition: scale 0.2s;
+  transform: perspective(400px);
   cursor: $cursor_pointer;
 
   .front,
@@ -72,8 +125,13 @@ const y = type.indexOf(props.type);
     transform: rotateX(180deg) rotateZ(180deg);
   }
 
-  &:hover {
+  &.dragging {
+    position: fixed;
+    top: calc((v-bind(dy) - v-bind(rely)) * 1px);
+    left: calc((v-bind(dx) - v-bind(relx)) * 1px);
+    pointer-events: none;
     scale: 1.1;
+    rotate: 10deg;
   }
 }
 </style>
