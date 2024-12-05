@@ -12,11 +12,6 @@
   font-display: swap;
 }
 
-$cursor_normal: url("~/assets/cursor/normal.png") 1 1, auto;
-$cursor_pointer: url("~/assets/cursor/pointer.png") 8 12, auto;
-$cursor_hold: url("~/assets/cursor/hold.png") 8 12, auto;
-$cursor_deny: url("~/assets/cursor/deny.png") 1 1, auto;
-
 * {
   box-sizing: border-box;
   padding: 0;
@@ -32,6 +27,7 @@ body,
   color: white;
   font-family: commitMono, monospace;
   cursor: $cursor_normal;
+  overflow: hidden;
 }
 
 a {
