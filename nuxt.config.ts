@@ -1,15 +1,40 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-11-01",
+  compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
-  vite: {
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: '@use "@/assets/_variables.scss" as *;',
-          api: "modern",
-        },
-      },
-    },
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@vueuse/nuxt",
+    "@nuxt/eslint",
+    "@nuxtjs/seo",
+    "motion-v/nuxt",
+    "@nuxt/fonts",
+    "@nuxtjs/plausible",
+    "nuxt-svgo",
+    "@nuxt/image",
+  ],
+
+  tailwindcss: {
+    exposeConfig: true,
+    editorSupport: true,
+    viewer: true,
+  },
+
+  fonts: {
+    provider: "bunny",
+  },
+
+  plausible: {
+    ignoredHostnames: ["localhost", "127.0.0.1"],
+    domain: "https://games.waradu.dev",
+    apiHost: "https://plausible.wireway.ch",
+    autoOutboundTracking: true,
+    proxy: true,
+  },
+
+  svgo: {
+    autoImportPath: false,
+    defaultImport: "component",
+    dts: true,
   },
 });
