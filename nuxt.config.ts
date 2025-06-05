@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     "@nuxtjs/plausible",
     "nuxt-svgo",
     "@nuxt/image",
+    "nuxt-build-cache",
   ],
 
   tailwindcss: {
