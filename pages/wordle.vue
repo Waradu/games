@@ -95,74 +95,80 @@ let guesseResults = ref<LetterStatus[][]>([]);
 const { $keyboard } = useNuxtApp();
 const { confetti } = useConfetti();
 
-$keyboard.listen([Key.X], () => {
-  confetti()
-})
+$keyboard.listen([Key.All], (e) => {
+  if (
+    !characters.includes(e.key.toLowerCase()) ||
+    lettersCount <= currentText.value.length ||
+    e.ctrlKey ||
+    e.metaKey ||
+    e.altKey
+  )
+    return;
+
+  animate(
+    `#box-${currentLine.value + 1}-${currentLetter.value + 1}`,
+    { scale: [1, 1.1, 1] },
+    { duration: 0.2, ease: "easeOut" }
+  );
+  currentText.value += e.key.toLowerCase();
+  currentLetter.value += 1;
+});
+
+$keyboard.listen([Key.Backspace], (e) => {
+  if (currentLetter.value == 0) return;
+
+  animate(
+    `#box-${currentLine.value + 1}-${currentLetter.value}`,
+    { scale: [1, 0.9, 1] },
+    { duration: 0.2, ease: "easeOut" }
+  );
+  currentText.value = currentText.value.slice(0, -1);
+  currentLetter.value -= 1;
+});
+
+$keyboard.listen([Key.Enter], (e) => {
+  if (
+    lettersCount != currentText.value.length ||
+    currentLine.value >= guessCount ||
+    !(
+      words.includes(currentText.value) ||
+      extraWords.includes(currentText.value)
+    )
+  )
+    return;
+
+  animate(
+    `.row-${currentLine.value + 1}`,
+    { y: [1, -20, 1], rotateX: 180 },
+    { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
+  );
+
+  animate(
+    `.row-${currentLine.value + 1}-back`,
+    { y: [1, -20, 1], rotateX: 360 },
+    { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
+  );
+
+  currentLine.value += 1;
+  currentLetter.value = 0;
+
+  guesses.value.push(currentText.value);
+  const result = checkWordleGuess(currentText.value);
+
+  currentText.value = "";
+
+  guesseResults.value.push(result);
+  if (result.every((res) => res == LetterStatus.CORRECT)) {
+    confetti();
+    return;
+  }
+  if (currentLine.value == guessCount) {
+    return;
+  }
+});
 
 onMounted(() => {
-
   word.value = words[Math.floor(Math.random() * words.length)];
-  
-  window.addEventListener("keyup", (e) => {
-    if (
-      characters.includes(e.key) &&
-      lettersCount > currentText.value.length &&
-      !(e.ctrlKey || e.metaKey || e.altKey)
-    ) {
-      animate(
-        `#box-${currentLine.value + 1}-${currentLetter.value + 1}`,
-        { scale: [1, 1.1, 1] },
-        { duration: 0.2, ease: "easeOut" }
-      );
-      currentText.value += e.key;
-      currentLetter.value += 1;
-    }
-    if (e.key == "Backspace") {
-      animate(
-        `#box-${currentLine.value + 1}-${currentLetter.value}`,
-        { scale: [1, 0.9, 1] },
-        { duration: 0.2, ease: "easeOut" }
-      );
-      currentText.value = currentText.value.slice(0, -1);
-      currentLetter.value -= 1;
-    }
-    if (
-      e.key == "Enter" &&
-      lettersCount == currentText.value.length &&
-      currentLine.value < guessCount &&
-      (words.includes(currentText.value) ||
-        extraWords.includes(currentText.value))
-    ) {
-      animate(
-        `.row-${currentLine.value + 1}`,
-        { y: [1, -20, 1], rotateX: 180 },
-        { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
-      );
-
-      animate(
-        `.row-${currentLine.value + 1}-back`,
-        { y: [1, -20, 1], rotateX: 360 },
-        { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
-      );
-
-      currentLine.value += 1;
-      currentLetter.value = 0;
-
-      guesses.value.push(currentText.value);
-      const result = checkWordleGuess(currentText.value);
-
-      currentText.value = "";
-
-      guesseResults.value.push(result);
-      if (result.every((res) => res == LetterStatus.CORRECT)) {
-        //confetti();
-        return;
-      }
-      if (currentLine.value == guessCount) {
-        return;
-      }
-    }
-  });
 });
 
 function checkWordleGuess(guess: string): LetterStatus[] {
