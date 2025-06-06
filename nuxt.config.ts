@@ -1,39 +1,16 @@
+import tailwindcss from "@tailwindcss/vite";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
-  modules: [
-    "@nuxtjs/tailwindcss",
-    "@vueuse/nuxt",
-    "@nuxt/eslint",
-    "motion-v/nuxt",
-    "@nuxt/fonts",
-    "@nuxtjs/plausible",
-    "nuxt-svgo",
-    "@nuxt/image",
-    "nuxt-build-cache",
-  ],
-
-  tailwindcss: {
-    exposeConfig: true,
-    editorSupport: true,
-    viewer: true,
-  },
+  modules: ["@vueuse/nuxt", "motion-v/nuxt", "@nuxt/fonts"],
 
   fonts: {
     provider: "bunny",
   },
 
-  plausible: {
-    ignoredHostnames: ["localhost", "127.0.0.1"],
-    domain: "https://games.waradu.dev",
-    apiHost: "https://plausible.wireway.ch",
-    autoOutboundTracking: true,
-  },
+  vite: { plugins: [tailwindcss()] },
 
-  svgo: {
-    autoImportPath: false,
-    defaultImport: "component",
-    dts: true,
-  },
+  css: ["~/assets/css/main.css"],
 });

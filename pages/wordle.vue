@@ -1,7 +1,8 @@
 <template>
-  <div class="w-full h-full flex flex-col gap-8 items-center p-8">
+  <div
+    class="w-full h-full dark flex flex-col gap-8 items-center p-8 bg-neutral-900 text-neutral-200 select-none"
+  >
     <h1 class="text-4xl font-bold">Wordle</h1>
-    <h1 class="text-4xl font-bold">{{ word }}</h1>
     <div class="flex flex-col gap-2 perspective-1000">
       <div v-for="row in guessCount" class="flex gap-2">
         <div
@@ -10,7 +11,7 @@
           :id="`box-${row}-${column}`"
         >
           <div
-            class="absolute inset-0 flex items-center justify-center text-2xl border-4 border-neutral-200 bg-transparent text-neutral-600 rounded-xl backface-hidden"
+            class="absolute inset-0 flex items-center justify-center text-2xl border-4 border-neutral-800 bg-transparent text-neutral-400 rounded-xl backface-hidden"
             :class="`row-${row}`"
           >
             {{
@@ -22,24 +23,48 @@
             }}
           </div>
           <div
-            class="absolute inset-0 flex items-center justify-center text-white text-2xl rounded-xl rotate-x-180 backface-hidden"
+            class="absolute inset-0 flex items-center justify-center text-white text-2xl rounded-xl rotate-x-180 transform backface-hidden font-bold"
             :class="[
               `row-${row}-back`,
               currentLine >= row
                 ? guesseResults[row - 1][column - 1] == LetterStatus.CORRECT
-                  ? 'bg-green-500'
+                  ? 'bg-[#568637]'
                   : guesseResults[row - 1][column - 1] == LetterStatus.PRESENT
-                  ? 'bg-orange-500'
-                  : 'bg-neutral-500'
+                  ? 'bg-[#b99c49]'
+                  : 'bg-neutral-800'
                 : '',
             ]"
           >
             {{
-              row - 1 == currentLine && currentLine >= row
+              row - 1 == currentLine
+                ? currentText[column - 1]?.toUpperCase()
+                : currentLine >= row
                 ? guesses[row - 1][column - 1]?.toUpperCase()
-                : "Y"
+                : ""
             }}
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 items-center w-full max-w-[600px]">
+      <div
+        v-for="row in keyboard"
+        class="grid gap-2 w-full"
+        :style="{
+          gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+        }"
+      >
+        <div
+          v-for="key in row"
+          class="h-10 bg-neutral-700 flex justify-center items-center rounded-xl transition-colors cursor-pointer"
+          :class="[
+            typedLetters.has(key)
+              ? 'bg-neutral-800 text-400'
+              : 'hover:bg-neutral-600',
+          ]"
+          @click="addKey(key)"
+        >
+          {{ key.toUpperCase() }}
         </div>
       </div>
     </div>
@@ -56,8 +81,16 @@ import { Key } from "@waradu/keyboard";
 const keyboard = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["z", "x", "c", "v", "b", "n", "m"],
+  ["⌫", "z", "x", "c", "v", "b", "n", "m", "↵"],
 ];
+
+enum GameState {
+  PLAYING,
+  DED,
+  WON,
+}
+
+const state = ref<GameState>(GameState.PLAYING);
 
 const words = Words.split("\n");
 const extraWords = ExtraWords.split("\n");
@@ -95,13 +128,21 @@ let guesseResults = ref<LetterStatus[][]>([]);
 const { $keyboard } = useNuxtApp();
 const { confetti } = useConfetti();
 
-$keyboard.listen([Key.All], (e) => {
+const addKey = (key: string) => {
+  if (key == "⌫") {
+    deleteChar();
+    return;
+  }
+
+  if (key == "↵") {
+    submit();
+    return;
+  }
+
   if (
-    !characters.includes(e.key.toLowerCase()) ||
+    !characters.includes(key.toLowerCase()) ||
     lettersCount <= currentText.value.length ||
-    e.ctrlKey ||
-    e.metaKey ||
-    e.altKey
+    state.value != GameState.PLAYING
   )
     return;
 
@@ -110,12 +151,18 @@ $keyboard.listen([Key.All], (e) => {
     { scale: [1, 1.1, 1] },
     { duration: 0.2, ease: "easeOut" }
   );
-  currentText.value += e.key.toLowerCase();
+  currentText.value += key.toLowerCase();
   currentLetter.value += 1;
+};
+
+$keyboard.listen([Key.All], (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  addKey(e.key);
 });
 
-$keyboard.listen([Key.Backspace], (e) => {
-  if (currentLetter.value == 0) return;
+const deleteChar = () => {
+  if (currentLetter.value == 0 || state.value != GameState.PLAYING) return;
 
   animate(
     `#box-${currentLine.value + 1}-${currentLetter.value}`,
@@ -124,9 +171,11 @@ $keyboard.listen([Key.Backspace], (e) => {
   );
   currentText.value = currentText.value.slice(0, -1);
   currentLetter.value -= 1;
-});
+};
 
-$keyboard.listen([Key.Enter], (e) => {
+$keyboard.listen([Key.Backspace], deleteChar);
+
+const submit = () => {
   if (
     lettersCount != currentText.value.length ||
     currentLine.value >= guessCount ||
@@ -134,8 +183,15 @@ $keyboard.listen([Key.Enter], (e) => {
       words.includes(currentText.value) ||
       extraWords.includes(currentText.value)
     )
-  )
+  ) {
+    animate(
+      `.row-${currentLine.value + 1}`,
+      { rotate: [0, -5, 10, -5, 0] },
+      { duration: 0.4, ease: "easeInOut" }
+    );
     return;
+  }
+  if (state.value != GameState.PLAYING) return;
 
   animate(
     `.row-${currentLine.value + 1}`,
@@ -160,12 +216,16 @@ $keyboard.listen([Key.Enter], (e) => {
   guesseResults.value.push(result);
   if (result.every((res) => res == LetterStatus.CORRECT)) {
     confetti();
+    state.value = GameState.WON;
     return;
   }
   if (currentLine.value == guessCount) {
+    state.value = GameState.DED;
     return;
   }
-});
+};
+
+$keyboard.listen([Key.Enter], submit);
 
 onMounted(() => {
   word.value = words[Math.floor(Math.random() * words.length)];
