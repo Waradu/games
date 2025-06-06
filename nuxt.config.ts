@@ -6,7 +6,6 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",
     "@nuxt/eslint",
-    "@nuxtjs/seo",
     "motion-v/nuxt",
     "@nuxt/fonts",
     "@nuxtjs/plausible",
@@ -30,7 +29,6 @@ export default defineNuxtConfig({
     domain: "https://games.waradu.dev",
     apiHost: "https://plausible.wireway.ch",
     autoOutboundTracking: true,
-    proxy: true,
   },
 
   svgo: {

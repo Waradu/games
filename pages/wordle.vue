@@ -37,7 +37,7 @@
             {{
               row - 1 == currentLine && currentLine >= row
                 ? guesses[row - 1][column - 1]?.toUpperCase()
-                : ""
+                : "Y"
             }}
           </div>
         </div>
@@ -50,8 +50,8 @@
 import Words from "~/assets/wordle/words.txt?raw";
 import ExtraWords from "~/assets/wordle/extra_words.txt?raw";
 import Characters from "~/assets/wordle/characters.txt?raw";
-import JSConfetti from "js-confetti";
 import { animate, stagger } from "motion-v";
+import { Key } from "@waradu/keyboard";
 
 const keyboard = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -63,7 +63,7 @@ const words = Words.split("\n");
 const extraWords = ExtraWords.split("\n");
 const characters = Characters.split("\n");
 
-const word = ref("water"); //words[Math.floor(Math.random() * words.length)]
+const word = ref("");
 let guesses = ref<string[]>([]);
 
 const typedLetters = computed(() => {
@@ -90,19 +90,19 @@ enum LetterStatus {
   CORRECT,
 }
 
-const confetti = () => {
-  const jsConfetti = new JSConfetti();
-  jsConfetti
-    .addConfetti({
-      confettiRadius: 6,
-      confettiNumber: 800,
-    })
-    .then(() => jsConfetti.destroyCanvas());
-};
-
 let guesseResults = ref<LetterStatus[][]>([]);
 
+const { $keyboard } = useNuxtApp();
+const { confetti } = useConfetti();
+
+$keyboard.listen([Key.X], () => {
+  confetti()
+})
+
 onMounted(() => {
+
+  word.value = words[Math.floor(Math.random() * words.length)];
+  
   window.addEventListener("keyup", (e) => {
     if (
       characters.includes(e.key) &&
@@ -155,7 +155,7 @@ onMounted(() => {
 
       guesseResults.value.push(result);
       if (result.every((res) => res == LetterStatus.CORRECT)) {
-        confetti();
+        //confetti();
         return;
       }
       if (currentLine.value == guessCount) {
