@@ -12,7 +12,7 @@
         >
           <div
             class="absolute inset-0 flex items-center justify-center text-2xl border-4 border-neutral-800 bg-transparent text-neutral-400 rounded-xl backface-hidden"
-            :class="`row-${row}`"
+            :class="`reset row-${row}`"
           >
             {{
               row - 1 == currentLine
@@ -25,7 +25,7 @@
           <div
             class="absolute inset-0 flex items-center justify-center text-white text-2xl rounded-xl rotate-x-180 transform backface-hidden font-bold"
             :class="[
-              `row-${row}-back`,
+              `reset-back row-${row}-back`,
               currentLine >= row
                 ? guesseResults[row - 1][column - 1] == LetterStatus.CORRECT
                   ? 'bg-[#568637]'
@@ -46,7 +46,15 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col gap-2 items-center w-full max-w-[600px]">
+    <div v-if="state == GameState.DED">{{ `The answer was: ${word}` }}</div>
+    <div
+      class="bg-neutral-800 rounded-xl cursor-pointer p-4 px-8 text-xl"
+      v-if="state != GameState.PLAYING"
+      @click="reset"
+    >
+      New Game
+    </div>
+    <div class="flex flex-col gap-2 items-center w-full max-w-[700px]">
       <div
         v-for="row in keyboard"
         class="grid gap-2 w-full"
@@ -56,7 +64,7 @@
       >
         <div
           v-for="key in row"
-          class="h-10 bg-neutral-700 flex justify-center items-center rounded-xl transition-colors cursor-pointer"
+          class="h-12 bg-neutral-700 flex justify-center items-center rounded-xl transition-colors cursor-pointer"
           :class="[
             typedLetters.has(key)
               ? 'bg-neutral-800 text-400'
@@ -178,7 +186,6 @@ $keyboard.listen([Key.Backspace], deleteChar);
 const submit = () => {
   if (
     lettersCount != currentText.value.length ||
-    currentLine.value >= guessCount ||
     !(
       words.includes(currentText.value) ||
       extraWords.includes(currentText.value)
@@ -230,6 +237,20 @@ $keyboard.listen([Key.Enter], submit);
 onMounted(() => {
   word.value = words[Math.floor(Math.random() * words.length)];
 });
+
+const reset = () => {
+  guesseResults.value = [];
+  currentLine.value = 0;
+  currentLetter.value = 0;
+  currentText.value = "";
+  guesses.value = [];
+  state.value = GameState.PLAYING;
+  word.value = words[Math.floor(Math.random() * words.length)];
+
+  animate(`.reset`, { rotateX: 0 }, { duration: 0 });
+
+  animate(`.row-back`, { rotateX: 180 }, { duration: 0 });
+};
 
 function checkWordleGuess(guess: string): LetterStatus[] {
   const result: LetterStatus[] = new Array(guess.length).fill(
