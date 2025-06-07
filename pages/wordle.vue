@@ -1,17 +1,25 @@
 <template>
   <div
-    class="w-full h-full dark flex flex-col gap-8 items-center p-8 bg-neutral-900 text-neutral-200 select-none"
+    class="w-full min-h-full h-max dark flex flex-col gap-8 items-center p-8 px-4 bg-neutral-900 text-neutral-200 select-none"
   >
-    <h1 class="text-4xl font-bold">Wordle</h1>
+    <h1 class="text-4xl font-bold flex items-center gap-4">
+      <span>Wordle</span>
+      <div
+        class="p-2 bg-neutral-800 active:bg-neutral-700 hover:bg-neutral-700 rounded-md"
+        @click="reset"
+      >
+        <LucideRotateCcw class="size-4" />
+      </div>
+    </h1>
     <div class="flex flex-col gap-2 perspective-1000">
       <div v-for="row in guessCount" class="flex gap-2">
         <div
           v-for="column in lettersCount"
-          class="relative preserve-3d perspective-1000 w-16 h-16"
+          class="relative preserve-3d perspective-1000 size-12 lg:size-16"
           :id="`box-${row}-${column}`"
         >
           <div
-            class="absolute inset-0 flex items-center justify-center text-2xl border-4 border-neutral-800 bg-transparent text-neutral-400 rounded-xl backface-hidden"
+            class="absolute inset-0 flex items-center justify-center text-xl lg:text-2xl border-4 border-neutral-800 bg-transparent text-neutral-400 rounded-xl backface-hidden"
             :class="`reset row-${row}`"
           >
             {{
@@ -46,18 +54,10 @@
         </div>
       </div>
     </div>
-    <div v-if="state == GameState.DED">{{ `The answer was: ${word}` }}</div>
-    <div
-      class="bg-neutral-800 rounded-xl cursor-pointer p-4 px-8 text-xl"
-      v-if="state != GameState.PLAYING"
-      @click="reset"
-    >
-      New Game
-    </div>
-    <div class="flex flex-col gap-2 items-center w-full max-w-[700px]">
+    <div class="flex flex-col gap-1 lg:gap-2 items-center w-full max-w-[800px]">
       <div
         v-for="row in keyboard"
-        class="grid gap-2 w-full"
+        class="grid gap-1 lg:gap-2 w-full"
         :style="{
           gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
         }"
@@ -68,12 +68,25 @@
           :class="[
             typedLetters.has(key)
               ? 'bg-neutral-800 text-400'
-              : 'hover:bg-neutral-600',
+              : 'hover:bg-neutral-600 active:bg-neutral-600',
           ]"
           @click="addKey(key)"
         >
           {{ key.toUpperCase() }}
         </div>
+      </div>
+    </div>
+    <div
+      class="flex flex-col items-center justify-center absolute inset-0 z-10 bg-neutral-900/80 backdrop-blur-xs text-md gap-4"
+      v-if="modalOpen"
+    >
+      <div v-if="state != GameState.PLAYING">{{ `The answer was: ${word}` }}</div>
+      <div
+        class="bg-neutral-800 rounded-xl cursor-pointer p-4 px-8 text-xl"
+        v-if="state != GameState.PLAYING"
+        @click="reset"
+      >
+        New Game
       </div>
     </div>
   </div>
@@ -85,6 +98,7 @@ import ExtraWords from "~/assets/wordle/extra_words.txt?raw";
 import Characters from "~/assets/wordle/characters.txt?raw";
 import { animate, stagger } from "motion-v";
 import { Key } from "@waradu/keyboard";
+import { LucideRefreshCcw, LucideRotateCcw } from "lucide-vue-next";
 
 const keyboard = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -106,6 +120,8 @@ const characters = Characters.split("\n");
 
 const word = ref("");
 let guesses = ref<string[]>([]);
+
+const modalOpen = ref(false);
 
 const typedLetters = computed(() => {
   let letters = new Set();
@@ -224,10 +240,12 @@ const submit = () => {
   if (result.every((res) => res == LetterStatus.CORRECT)) {
     confetti();
     state.value = GameState.WON;
+    modalOpen.value = true;
     return;
   }
   if (currentLine.value == guessCount) {
     state.value = GameState.DED;
+    modalOpen.value = true;
     return;
   }
 };
@@ -249,7 +267,24 @@ const reset = () => {
 
   animate(`.reset`, { rotateX: 0 }, { duration: 0 });
 
-  animate(`.row-back`, { rotateX: 180 }, { duration: 0 });
+  animate(`.reset-back`, { rotateX: 180 }, { duration: 0 });
+
+  for (let i = 0; i < guessCount; i++) {
+    const ix = i;
+    setTimeout(() => {
+      animate(
+        `.row-${ix + 1}`,
+        { scale: [1, 1.2, 1] },
+        { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
+      );
+    }, ix * 100);
+  }
+
+  animate(
+    `.reset`,
+    { scale: [1, 1.1, 1] },
+    { delay: stagger(0.1), duration: 0.4 }
+  );
 };
 
 function checkWordleGuess(guess: string): LetterStatus[] {
