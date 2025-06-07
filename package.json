@@ -14,6 +14,7 @@
     "@tailwindcss/vite": "^4.1.8",
     "@vueuse/nuxt": "13.3.0",
     "@waradu/keyboard": "^4.3.0",
+    "html-to-image": "^1.11.13",
     "js-confetti": "^0.12.0",
     "lucide-vue-next": "^0.513.0",
     "motion-v": "^1.2.0",
