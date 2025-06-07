@@ -242,13 +242,13 @@ const submit = () => {
 
   animate(
     `.row-${currentLine.value + 1}`,
-    { y: [1, -20, 1], rotateX: 180 },
+    { y: [0, -20, 5, 0], rotateX: 180 },
     { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
   );
 
   animate(
     `.row-${currentLine.value + 1}-back`,
-    { y: [1, -20, 1], rotateX: 360 },
+    { y: [0, -20, 5, 0], rotateX: 360 },
     { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" }
   );
 
