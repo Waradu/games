@@ -63,17 +63,22 @@
         }"
       >
         <div
-          v-for="key in row"
-          class="h-12 bg-neutral-700 flex justify-center items-center rounded-xl transition-colors cursor-pointer"
-          :class="[
-            typedLetters.has(key)
-              ? 'bg-neutral-800 text-400'
-              : 'hover:bg-neutral-600 active:bg-neutral-600',
-          ]"
-          @click="addKey(key)"
-        >
-          {{ key.toUpperCase() }}
-        </div>
+				  v-for="key in row"
+				  :key="key"
+				  class="h-12 flex justify-center items-center rounded-xl transition-colors cursor-pointer"
+				  :class="[
+				    keyStatuses.get(key) !== undefined
+				      ? keyStatuses.get(key) === LetterStatus.CORRECT
+				        ? 'bg-[#568637] text-white'
+				        : keyStatuses.get(key) === LetterStatus.PRESENT
+				        ? 'bg-[#b99c49] text-white'
+				        : 'bg-neutral-800 text-white'
+				      : 'bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-600 text-neutral-200'
+				  ]"
+				  @click="addKey(key)"
+				>
+				  {{ key.toUpperCase() }}
+				</div>
       </div>
     </div>
     <div
@@ -123,15 +128,28 @@ let guesses = ref<string[]>([]);
 
 const modalOpen = ref(false);
 
-const typedLetters = computed(() => {
-  let letters = new Set();
+const keyStatuses = computed(() => {
+  const map = new Map<string, LetterStatus>();
 
-  keyboard.flat().forEach((key) => {
-    const keyInGuesses = guesses.value.some((guess) => guess.includes(key));
-    if (keyInGuesses) letters.add(key);
+  guesses.value.forEach((guess) => {
+    const result = checkWordleGuess(guess);
+
+    for (let i = 0; i < guess.length; i++) {
+      const key = guess[i];
+      const status = result[i];
+      const prev = map.get(key) ?? LetterStatus.ABSENT;
+
+      if (
+        status === LetterStatus.CORRECT ||
+        (status === LetterStatus.PRESENT && prev !== LetterStatus.CORRECT) ||
+        (status === LetterStatus.ABSENT && !map.has(key))
+      ) {
+        map.set(key, status);
+      }
+    }
   });
 
-  return letters;
+  return map;
 });
 
 const currentLine = ref(0);
@@ -264,6 +282,7 @@ const reset = () => {
   guesses.value = [];
   state.value = GameState.PLAYING;
   word.value = words[Math.floor(Math.random() * words.length)];
+	modalOpen.value = false;
 
   animate(`.reset`, { rotateX: 0 }, { duration: 0 });
 
