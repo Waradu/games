@@ -93,6 +93,12 @@
       >
         New Game
       </div>
+      <div
+        class="bg-neutral-800 rounded-xl cursor-pointer p-4 px-8 text-xl"
+        @click="modalOpen = false"
+      >
+        Close
+      </div>
     </div>
   </div>
 </template>
