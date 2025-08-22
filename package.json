@@ -17,6 +17,8 @@
     "@nuxt/fonts": "^0.11.4",
     "@nuxtjs/seo": "^3.1.0",
     "@tailwindcss/vite": "^4.1.12",
+    "@trpc/client": "^11.5.0",
+    "@trpc/server": "^11.5.0",
     "@vueuse/nuxt": "^13.7.0",
     "@waradu/keyboard": "^5.3.6",
     "eslint": "^9.33.0",
@@ -26,9 +28,12 @@
     "motion-v": "^1.7.0",
     "nuxt": "^4.0.3",
     "nuxt-svgo": "^4.2.6",
+    "superjson": "^2.2.2",
     "tailwindcss": "^4.1.12",
+    "trpc-nuxt": "^1.2.0",
     "vue": "^3.5.19",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
