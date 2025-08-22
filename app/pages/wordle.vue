@@ -5,17 +5,19 @@
     <h1 v-if="dev">{{ word }}</h1>
     <h1 class="flex items-center gap-4 text-4xl font-bold">
       <span>Wordle</span>
-      <div
-        class="rounded-md bg-neutral-800 p-2 hover:bg-neutral-700 active:bg-neutral-700"
-        @click="reset"
-      >
-        <LucideRotateCcw class="size-4 text-neutral-200" />
-      </div>
-      <div
-        class="rounded-md bg-neutral-800 p-2 hover:bg-neutral-700 active:bg-neutral-700"
-        @click="screenshot"
-      >
-        <LucideCamera class="size-4 text-neutral-200" />
+      <div class="flex gap-2">
+        <div
+          class="rounded-md bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
+          @click="reset"
+        >
+          <LucideRotateCcw class="size-4 text-neutral-200" />
+        </div>
+        <div
+          class="rounded-md bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
+          @click="screenshot"
+        >
+          <LucideCamera class="size-4 text-neutral-200" />
+        </div>
       </div>
     </h1>
     <div ref="boardRef" class="flex flex-col gap-4 bg-neutral-900 p-4">
