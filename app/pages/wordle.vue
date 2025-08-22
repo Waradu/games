@@ -2,6 +2,7 @@
   <div
     class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 p-8 px-4 text-neutral-200 select-none"
   >
+    <h1 v-if="dev">{{ word }}</h1>
     <h1 class="flex items-center gap-4 text-4xl font-bold">
       <span>Wordle</span>
       <div
@@ -36,7 +37,7 @@
             class="preserve-3d perspective-1000 relative size-12 lg:size-16"
           >
             <div
-              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 border-neutral-800 bg-transparent text-xl text-neutral-200 backface-hidden lg:text-2xl"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 border-neutral-800 bg-neutral-900 text-xl text-neutral-200 backface-hidden lg:text-2xl"
               :class="`reset row-${row}`"
             >
               {{
@@ -73,11 +74,11 @@
         </div>
       </div>
     </div>
-    <div class="flex w-full max-w-[800px] flex-col items-center gap-1 lg:gap-2">
+    <div class="flex w-full flex-col items-center gap-1 lg:gap-2">
       <div
         v-for="row in keyboard"
         :key="row.toString()"
-        class="grid w-full gap-1 lg:gap-2"
+        class="grid w-max max-w-full gap-1 lg:gap-2"
         :style="{
           gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
         }"
@@ -85,7 +86,7 @@
         <div
           v-for="key in row"
           :key="key"
-          class="flex h-12 items-center justify-center rounded-xl transition-colors"
+          class="flex h-12 w-20 max-w-full items-center justify-center rounded-xl transition-colors"
           :class="[
             keyStatuses.get(key) !== undefined
               ? keyStatuses.get(key) === LetterStatus.CORRECT
@@ -134,6 +135,8 @@ useHead({
   title: "Wordle",
 });
 
+const dev = import.meta.dev;
+
 const boardRef = ref<HTMLElement | null>(null);
 const screenshotting = ref(false);
 
@@ -162,7 +165,7 @@ const screenshot = async () => {
 const keyboard = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["⌫", "z", "x", "c", "v", "b", "n", "m", "↵"],
+  ["↵", "z", "x", "c", "v", "b", "n", "m", "⌫"],
 ];
 
 enum GameState {
