@@ -1,13 +1,8 @@
+import z from "zod";
 import { baseProcedure, createTRPCRouter } from "~~/server/trpc/init";
-import { z } from "zod";
-import { wordleRouter } from "~~/server/trpc/routers/wordle";
 
-export const appRouter = createTRPCRouter({
+export const wordleRouter = createTRPCRouter({
   test: baseProcedure.input(z.object({ name: z.string() })).query(async (opts) => {
     return `Hello, ${opts.input.name}!`;
   }),
-
-  wordle: wordleRouter,
 });
-
-export type AppRouter = typeof appRouter;

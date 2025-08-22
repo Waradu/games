@@ -2,18 +2,18 @@
   <div
     class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 p-8 px-4 text-neutral-200 select-none"
   >
-    <h1 v-if="dev">{{ word }}</h1>
+    <h1 v-if="dev" class="blur-xs hover:blur-none transition-all">{{ word }}</h1>
     <h1 class="flex items-center gap-4 text-4xl font-bold">
       <span>Wordle</span>
       <div class="flex gap-2">
         <div
-          class="rounded-md bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
+          class="rounded-xl bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
           @click="reset"
         >
           <LucideRotateCcw class="size-4 text-neutral-200" />
         </div>
         <div
-          class="rounded-md bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
+          class="rounded-xl bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
           @click="screenshot"
         >
           <LucideCamera class="size-4 text-neutral-200" />
@@ -360,7 +360,7 @@ const reset = () => {
       animate(
         `.row-${ix + 1}`,
         { scale: [1, 1.2, 1] },
-        { delay: stagger(0.1), duration: 0.4, ease: "easeInOut" },
+        { delay: stagger(0.06), duration: 0.2, ease: "easeInOut" },
       );
     }, ix * 100);
   }

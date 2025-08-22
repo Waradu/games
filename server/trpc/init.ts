@@ -4,10 +4,7 @@ import type { H3Event } from "h3";
 
 export const createTRPCContext = async (event: H3Event) => {
   return {
-    event,
-    user: event.context.authUser,
-    session: event.context.authSession,
-    clearSession: event.context.clearSession
+    event
   };
 };
 
