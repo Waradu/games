@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { TRPCError } from "@trpc/server";
 import { createId } from "@paralleldrive/cuid2";
-import { createWordleGame, GameResult, LetterStatus, type WordleGame } from "~~/shared/types/wordle";
+import { GameResult, LetterStatus, type WordleGame } from "~~/shared/types/wordle";
 
 const Words = readFileSync(join(process.cwd(), "app/assets/wordle/words.txt"), "utf-8");
 const ExtraWords = readFileSync(join(process.cwd(), "app/assets/wordle/extra_words.txt"), "utf-8");
@@ -101,6 +101,13 @@ export const wordleRouter = createTRPCRouter({
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Game was not found. Please start a new one."
+      });
+    }
+
+    if (game.guesses.some(g => g.word === guess)) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "Word was already guessed. Please try another one."
       });
     }
 

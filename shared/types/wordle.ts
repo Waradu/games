@@ -18,11 +18,3 @@ export interface WordleGame {
   }[],
   started: Date;
 }
-
-export const createWordleGame = (word: string): WordleGame => {
-  return {
-    word,
-    guesses: [],
-    started: new Date()
-  };
-};
