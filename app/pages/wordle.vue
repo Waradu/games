@@ -227,7 +227,6 @@ enum LetterStatus {
 
 const guesseResults = ref<LetterStatus[][]>([]);
 
-const { $keyboard } = useNuxtApp();
 const { confetti } = useConfetti();
 
 const addKey = (key: string) => {
@@ -257,7 +256,7 @@ const addKey = (key: string) => {
   currentLetter.value += 1;
 };
 
-$keyboard.listen([Key.All], (e) => {
+useKeybind([Key.All], (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
   addKey(e.key);
@@ -275,7 +274,7 @@ const deleteChar = () => {
   currentLetter.value -= 1;
 };
 
-$keyboard.listen([Key.Backspace], deleteChar);
+useKeybind([Key.Backspace], deleteChar);
 
 const submit = () => {
   if (state.value != GameState.PLAYING) {
@@ -333,7 +332,7 @@ const submit = () => {
   }
 };
 
-$keyboard.listen([Key.Enter], submit);
+useKeybind([Key.Enter], submit);
 
 onMounted(() => {
   word.value = words[Math.floor(Math.random() * words.length)] ?? "noway";
