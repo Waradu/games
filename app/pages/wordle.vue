@@ -37,7 +37,7 @@
             class="preserve-3d perspective-1000 relative size-12 lg:size-16"
           >
             <div
-              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 border-neutral-800 bg-neutral-900 text-xl text-neutral-200 backface-hidden lg:text-2xl"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 border-neutral-700 bg-neutral-900 text-xl text-neutral-200 backface-hidden lg:text-2xl"
               :class="`reset row-${row}`"
             >
               {{
@@ -86,7 +86,7 @@
         <div
           v-for="key in row"
           :key="key"
-          class="flex h-12 w-20 max-w-full items-center justify-center rounded-xl transition-colors"
+          class="flex h-14 w-20 max-w-full items-center justify-center rounded-xl transition-colors"
           :class="[
             keyStatuses.get(key) !== undefined
               ? keyStatuses.get(key) === LetterStatus.CORRECT
