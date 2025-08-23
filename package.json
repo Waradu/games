@@ -20,6 +20,7 @@
     "@tailwindcss/vite": "^4.1.12",
     "@trpc/client": "^11.5.0",
     "@trpc/server": "^11.5.0",
+    "@vite-pwa/nuxt": "^1.0.4",
     "@vueuse/nuxt": "^13.7.0",
     "@waradu/keyboard": "^5.3.6",
     "eslint": "^9.33.0",
