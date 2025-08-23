@@ -3,24 +3,52 @@ import { baseProcedure, createTRPCRouter } from "~~/server/trpc/init";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { TRPCError } from "@trpc/server";
-import { createId } from "@paralleldrive/cuid2";
-import { GameResult, LetterStatus, type WordleGame } from "~~/shared/types/wordle";
+import { GameState, LetterStatus, type WordleGuess, type WordleGame, type KeyHints, type WordleBoard } from "~~/shared/types/wordle";
 
 const Words = readFileSync(join(process.cwd(), "app/assets/wordle/words.txt"), "utf-8");
 const ExtraWords = readFileSync(join(process.cwd(), "app/assets/wordle/extra_words.txt"), "utf-8");
 
 const words = Words.split("\n");
 const extraWords = ExtraWords.split("\n");
+const Allowed = new Set([...words, ...extraWords]);
 
 const WordsSchema = z.string().refine(
-  (val) => extraWords.includes(val),
+  (val) => Allowed.has(val),
   { message: "Please use a valid word." }
 );
 
 const sessions = new Map<string, WordleGame>();
 
-function diffMs(date: Date): number {
-  return Date.now() - date.getTime();
+const MAX_ATTEMPTS = 6;
+
+const statusRank = {
+  [LetterStatus.ABSENT]: 0,
+  [LetterStatus.PRESENT]: 1,
+  [LetterStatus.CORRECT]: 2,
+} as const;
+
+function toTiles(guess: string, result: LetterStatus[]) {
+  return guess.split("").map((ch, i) => ({ letter: ch, result: result[i]! }));
+}
+
+function computeKeyboard(guesses: WordleGuess[]): KeyHints {
+  const hints: KeyHints = {};
+  for (const g of guesses) {
+    const tiles = toTiles(g.word, g.result);
+    for (const t of tiles) {
+      const prev = hints[t.letter];
+      const prevRank = prev === undefined ? -1 : statusRank[prev];
+      const currRank = statusRank[t.result!];
+      if (currRank > prevRank) {
+        hints[t.letter!] = t.result!;
+      }
+    }
+  }
+  return hints;
+}
+
+function computeBoard(guesses: WordleGuess[]): WordleBoard {
+  return guesses.map((g) => toTiles(g.word, g.result));
 }
 
 function checkWordleGuess(word: string, guess: string): LetterStatus[] {
@@ -53,6 +81,11 @@ function checkWordleGuess(word: string, guess: string): LetterStatus[] {
 
 export const wordleRouter = createTRPCRouter({
   start: baseProcedure.mutation(async () => {
+    const now = Date.now();
+    sessions.forEach(session => {
+      if (now - session.started.getTime() > 24 * 60 * 60 * 1000) sessions.delete(session.id);
+    });
+
     const word = words[Math.floor(Math.random() * words.length)];
 
     if (!word) {
@@ -62,11 +95,12 @@ export const wordleRouter = createTRPCRouter({
       });
     }
 
-    const id = createId();
+    const game = createWordleGame(word);
+    sessions.set(game.id, game);
 
-    sessions.set(id, createWordleGame(word));
-
-    return { id };
+    return {
+      id: game.id
+    };
   }),
 
   stop: baseProcedure.input(z.object({
@@ -85,15 +119,50 @@ export const wordleRouter = createTRPCRouter({
 
     sessions.delete(id);
 
-    return { word: game.word };
+    const board = computeBoard(game.guesses);
+    const keyboard = computeKeyboard(game.guesses);
+    return { word: game.word, board, keyboard, started: game.started, state: GameState.DED };
   }),
 
-  guess: baseProcedure.input(z.object({
-    id: z.string(),
-    word: WordsSchema
-  })).mutation(async (opts) => {
+  get: baseProcedure.input(z.object({
+    id: z.string()
+  })).query(async (opts) => {
     const id = opts.input.id;
+
+    const game = sessions.get(id);
+
+    if (!game) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Game was not found. Please start a new one."
+      });
+    }
+
+    const board = computeBoard(game.guesses);
+    const keyboard = computeKeyboard(game.guesses);
+    const last = game.guesses.at(-1);
+    const result = last?.word === game.word
+      ? GameState.WON
+      : game.guesses.length >= MAX_ATTEMPTS
+        ? GameState.DED
+        : GameState.PLAYING;
+
+    if (result != GameState.PLAYING) {
+      sessions.delete(id);
+    }
+
+    return {
+      board,
+      keyboard,
+      started: game.started,
+      state: result,
+      word: result != GameState.PLAYING ? game.word : undefined
+    };
+  }),
+
+  guess: baseProcedure.input(z.object({ word: WordsSchema, id: z.string() })).mutation(async (opts) => {
     const guess = opts.input.word.toLowerCase();
+    const id = opts.input.id;
 
     const game = sessions.get(id);
 
@@ -121,26 +190,37 @@ export const wordleRouter = createTRPCRouter({
     if (guess == game.word) {
       sessions.delete(id);
 
+      const board = computeBoard(game.guesses);
+      const keyboard = computeKeyboard(game.guesses);
       return {
         word: game.word,
-        guesses: game.guesses,
-        time: diffMs(game.started),
-        result: GameResult.WON
+        board,
+        keyboard,
+        started: game.started,
+        state: GameState.WON,
       };
     } else if (game.guesses.length >= 6) {
       sessions.delete(id);
 
+      const board = computeBoard(game.guesses);
+      const keyboard = computeKeyboard(game.guesses);
       return {
         word: game.word,
-        guesses: game.guesses,
-        time: diffMs(game.started),
-        result: GameResult.DED
+        board,
+        keyboard,
+        started: game.started,
+        state: GameState.DED,
       };
     }
 
+    const board = computeBoard(game.guesses);
+    const keyboard = computeKeyboard(game.guesses);
+
     return {
-      guesses: game.guesses,
-      result: GameResult.PLAYING
+      board,
+      keyboard,
+      started: game.started,
+      state: GameState.PLAYING,
     };
   }),
 });

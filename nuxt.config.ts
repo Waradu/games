@@ -15,9 +15,9 @@ export default defineNuxtConfig({
   ],
 
   site: {
-    url: "",
-    name: "",
-    description: "",
+    url: "https://games.waradu.dev",
+    name: "Games",
+    description: "Play minigames",
     defaultLocale: "en",
   },
 
@@ -71,8 +71,7 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: "page", mode: "out-in" },
     head: {
-      title: "",
-      titleTemplate: "%s",
+      title: "Games",
       htmlAttrs: {
         lang: "en"
       },

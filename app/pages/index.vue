@@ -2,6 +2,10 @@
 import { LucideLayoutGrid, type LucideProps } from "lucide-vue-next";
 import type { FunctionalComponent } from "vue";
 
+useHead({
+  title: "Home",
+});
+
 interface Game {
   name: string;
   icon: FunctionalComponent<LucideProps, {}, any, {}>;

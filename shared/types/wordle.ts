@@ -4,17 +4,27 @@ export enum LetterStatus {
   CORRECT,
 }
 
-export enum GameResult {
+export enum GameState {
   DED,
   PLAYING,
   WON,
 }
 
-export interface WordleGame {
+export interface WordleGuess {
   word: string;
-  guesses: {
-    word: string;
-    result: LetterStatus[];
-  }[],
+  result: LetterStatus[];
+}
+
+export interface WordleGame {
+  id: string;
+  word: string;
+  guesses: WordleGuess[],
   started: Date;
 }
+
+export type WordleBoard = {
+  letter: string;
+  result: LetterStatus;
+}[][];
+
+export type KeyHints = Record<string, LetterStatus>;
