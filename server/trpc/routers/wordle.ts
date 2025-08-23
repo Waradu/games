@@ -5,17 +5,17 @@ import { join } from "path";
 import { TRPCError } from "@trpc/server";
 import { GameState, LetterStatus, type WordleGuess, type WordleGame, type KeyHints, type WordleBoard } from "~~/shared/types/wordle";
 
-const Words = readFileSync(join(process.cwd(), "app/assets/wordle/words.txt"), "utf-8");
-const ExtraWords = readFileSync(join(process.cwd(), "app/assets/wordle/extra_words.txt"), "utf-8");
+const Words = readFileSync(join(process.cwd(), "server/assets/wordle/words.txt"), "utf-8");
+const ExtraWords = readFileSync(join(process.cwd(), "server/assets/wordle/extra_words.txt"), "utf-8");
 
-const words = Words.split("\n");
-const extraWords = ExtraWords.split("\n");
+const words = Words.trim().split("\n");
+const extraWords = ExtraWords.trim().split("\n");
 const Allowed = new Set([...words, ...extraWords]);
 
 const WordsSchema = z.string().refine(
   (val) => Allowed.has(val),
   { message: "Please use a valid word." }
-);
+).length(5);
 
 const sessions = new Map<string, WordleGame>();
 
