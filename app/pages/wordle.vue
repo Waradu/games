@@ -53,7 +53,7 @@
             >
               {{
                 row - 1 == currentLine
-                  ? currentText[column - 1]?.toUpperCase()
+                  ? tileCurrentText(column - 1)
                   : currentLine > row - 1
                     ? tileLetter(row - 1, column - 1)
                     : ""
@@ -76,7 +76,7 @@
             >
               {{
                 row - 1 == currentLine
-                  ? currentText[column - 1]?.toUpperCase()
+                  ? tileCurrentText(column - 1)
                   : currentLine > row - 1
                     ? tileLetter(row - 1, column - 1)
                     : ""
@@ -175,6 +175,12 @@ const tileAt = (r: number, c: number) => board.value?.[r]?.[c] ?? null;
 const tileLetter = (r: number, c: number) =>
   tileAt(r, c)?.letter?.toUpperCase() ?? "";
 const tileResult = (r: number, c: number) => tileAt(r, c)?.result ?? null;
+const tileCurrentText = (c: number) => {
+  const character = currentText.value[c];
+  if (!character) return "";
+  if (character == " ") return "?";
+  return character.toUpperCase();
+};
 
 const screenshot = async () => {
   if (!boardRef.value) return;
@@ -201,7 +207,7 @@ const screenshot = async () => {
 const keyboard = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
   ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["↵", "z", "x", "c", "v", "b", "n", "m", "⌫"],
+  ["↵", "z", "x", "c", "v", "b", "n", "m", "?", "⌫"],
 ] as const;
 
 const state = ref<GameState>(GameState.PLAYING);
@@ -237,6 +243,10 @@ const addKey = (key: string) => {
   if (key == "↵") {
     submit();
     return;
+  }
+
+  if (key == "?") {
+    key = " ";
   }
 
   if (
