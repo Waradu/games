@@ -111,9 +111,7 @@
                 : keyhints[key] === LetterStatus.PRESENT
                   ? 'bg-[#b99c49] text-white'
                   : 'bg-neutral-800 text-white'
-              : key == '⌫' || key == '↵'
-                ? 'bg-neutral-200 text-neutral-800 font-bold'
-                : 'bg-neutral-700 text-neutral-200',
+              : 'bg-neutral-700 text-neutral-200',
           ]"
           @click="addKey(key)"
         >
