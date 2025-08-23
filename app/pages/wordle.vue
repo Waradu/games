@@ -39,7 +39,7 @@
           "{{ word.toUpperCase() }}"
         </span>
       </div>
-      <div class="perspective-1000 flex flex-col gap-2">
+      <div class="perspective-1000 relative flex flex-col gap-2">
         <div v-for="row in guessCount" :key="row" class="flex gap-2">
           <div
             v-for="column in lettersCount"
@@ -48,8 +48,14 @@
             class="preserve-3d perspective-1000 relative size-12 lg:size-16"
           >
             <div
-              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 border-neutral-800 bg-neutral-900 text-xl text-neutral-200 backface-hidden lg:text-2xl"
-              :class="`reset row-${row}`"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 transition-colors backface-hidden lg:text-2xl"
+              :class="[
+                `reset row-${row}`,
+                currentLetter + 1 == column && currentLine + 1 == row
+                  ? 'border-neutral-700'
+                  : 'border-neutral-800',
+              ]"
+              @click="() => setCurrentLetter(column, row)"
             >
               {{
                 row - 1 == currentLine
@@ -221,7 +227,7 @@ const modalOpen = ref(false);
 
 const currentLine = ref(0);
 const currentLetter = ref(0);
-const currentText = ref("");
+const currentText = ref<string[]>([]);
 
 const lettersCount = 5;
 const guessCount = 6;
@@ -233,6 +239,17 @@ enum LetterStatus {
 }
 
 const { confetti } = useConfetti();
+
+const setCurrentLetter = (column: number, row: number) => {
+  if (row - 1 != currentLine.value) return;
+
+  if (column - 1 > currentText.value.length) {
+    currentLetter.value = currentText.value.length;
+    return;
+  }
+
+  currentLetter.value = column - 1;
+};
 
 const addKey = (key: string) => {
   if (key == "⌫") {
@@ -261,7 +278,7 @@ const addKey = (key: string) => {
     { scale: [1, 1.1, 1] },
     { duration: 0.2, ease: "easeOut" },
   );
-  currentText.value += key.toLowerCase();
+  currentText.value.splice(currentLetter.value, 0, key.toLowerCase());
   currentLetter.value += 1;
 };
 
@@ -279,11 +296,25 @@ const deleteChar = () => {
     { scale: [1, 0.9, 1] },
     { duration: 0.2, ease: "easeOut" },
   );
-  currentText.value = currentText.value.slice(0, -1);
+  currentText.value.splice(currentLetter.value - 1, 1);
   currentLetter.value -= 1;
 };
 
 useKeybind([Key.Backspace], deleteChar);
+
+useKeybind([Key.ArrowLeft], () => {
+  if (currentLetter.value == 0) return;
+  currentLetter.value = currentLetter.value - 1;
+});
+
+useKeybind([Key.ArrowRight], () => {
+  if (
+    currentLetter.value == 5 ||
+    currentLetter.value == currentText.value.length
+  )
+    return;
+  currentLetter.value = currentLetter.value + 1;
+});
 
 const submit = async () => {
   if (state.value != GameState.PLAYING) {
@@ -293,7 +324,7 @@ const submit = async () => {
 
   try {
     const result = await $trpc.wordle.guess.mutate({
-      word: currentText.value,
+      word: currentText.value.join(""),
       id: id.value,
     });
     state.value = result.state;
@@ -314,7 +345,7 @@ const submit = async () => {
 
     currentLine.value += 1;
     currentLetter.value = 0;
-    currentText.value = "";
+    currentText.value = [];
 
     if (state.value == GameState.WON) {
       word.value = result.word!;
@@ -343,7 +374,7 @@ const reset = async () => {
   keyhints.value = {};
   currentLine.value = 0;
   currentLetter.value = 0;
-  currentText.value = "";
+  currentText.value = [];
   state.value = GameState.PLAYING;
   modalOpen.value = false;
   const game = await $trpc.wordle.start.mutate();
