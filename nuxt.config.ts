@@ -1,7 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
   modules: [
@@ -35,7 +35,6 @@ export default defineNuxtConfig({
       {
         name: "Inter",
         provider: "bunny",
-        weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
         subsets: ["latin"]
       }
     ]
@@ -49,13 +48,13 @@ export default defineNuxtConfig({
             src: "https://analytics.epilogue.team/api/script.js",
             async: true,
             defer: true,
-            "data-site-id": "0",
+            "data-site-id": "10",
             "data-web-vitals": "true",
             "data-track-errors": "true",
           },
         ],
       }
-    }
+    },
   },
 
   nitro: {
