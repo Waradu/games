@@ -51,7 +51,7 @@
               class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 transition-colors backface-hidden lg:text-2xl"
               :class="[
                 `reset row-${row}`,
-                currentLetter + 1 == column &&
+                currentLetter == column &&
                 currentLine + 1 == row &&
                 state == GameState.PLAYING
                   ? 'border-neutral-700'
@@ -250,7 +250,7 @@ const setCurrentLetter = (column: number, row: number) => {
     return;
   }
 
-  currentLetter.value = column - 1;
+  currentLetter.value = column;
 };
 
 const addKey = (key: string) => {
