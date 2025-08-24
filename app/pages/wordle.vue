@@ -390,6 +390,7 @@ const reset = async () => {
   state.value = GameState.PLAYING;
   modalOpen.value = false;
   error.value = "";
+  if (id.value) await $trpc.wordle.stop.mutate({ id: id.value });
   const game = await $trpc.wordle.start.mutate();
   id.value = game.id;
 };
