@@ -29,6 +29,9 @@
         </div>
       </div>
     </h1>
+    <h3 v-if="error" class="w-full text-center text-red-400">
+      {{ error }}
+    </h3>
     <div ref="screenshotArea" class="flex flex-col gap-4 bg-neutral-900 p-4">
       <div
         v-if="screenshotting"
@@ -224,6 +227,7 @@ const characters = Characters.split("\n");
 
 const word = ref("");
 const id = ref("");
+const error = ref("");
 
 const modalOpen = ref(false);
 
@@ -360,7 +364,13 @@ const submit = async () => {
       modalOpen.value = true;
       return;
     }
-  } catch {
+  } catch (err) {
+    if (isTrpcError(err)) {
+      if (err.data?.code == "NOT_FOUND") {
+        error.value = err.message;
+      }
+    }
+
     animate(
       `.row-${currentLine.value + 1}`,
       { rotate: [0, -5, 10, -5, 10, -5, 0], opacity: [1, 0.5, 1] },
@@ -379,6 +389,7 @@ const reset = async () => {
   currentText.value = [];
   state.value = GameState.PLAYING;
   modalOpen.value = false;
+  error.value = "";
   const game = await $trpc.wordle.start.mutate();
   id.value = game.id;
 };
