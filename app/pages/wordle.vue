@@ -1,33 +1,30 @@
 <template>
   <div
-    class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 px-4 pt-4 text-neutral-200 select-none"
+    class="dark flex h-max min-h-full w-full flex-col items-center gap-2 bg-neutral-900 px-4 pt-4 pb-56 text-neutral-200 select-none"
   >
     <PageHeader>
       <div class="flex items-center gap-2">
         <div class="flex gap-2">
           <Button
             :title="isDaily ? 'Switch to random' : 'Switch to daily'"
-            @click="toggleDaily"
             :icon="isDaily ? LucideCalendarClock : LucideShuffle"
+            @click="toggleDaily"
           >
             <span>{{ isDaily ? "Daily" : "Random" }}</span>
           </Button>
-          <Button title="Restart" @click="clear" :icon="LucideRotateCcw" />
-          <Button title="Screenshot" @click="screenshot" :icon="LucideCamera" />
+          <Button title="Restart" :icon="LucideRotateCcw" @click="clear" />
+          <Button title="Screenshot" :icon="LucideCamera" @click="screenshot" />
           <Button
             v-if="board.length > 0"
             title="Give Up"
-            @click="giveup"
             :icon="LucideX"
+            @click="giveup"
           />
         </div>
       </div>
     </PageHeader>
     <h1 class="text-4xl font-bold">Wordle</h1>
-    <div
-      ref="screenshotArea"
-      class="flex flex-col gap-4 bg-neutral-900 p-4"
-    >
+    <div ref="screenshotArea" class="flex flex-col gap-4 bg-neutral-900 p-4">
       <div
         v-if="screenshotting"
         class="flex justify-between text-sm text-neutral-400"
@@ -49,7 +46,7 @@
             class="preserve-3d perspective-1000 relative size-12 md:size-16"
           >
             <div
-              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 transition-colors backface-hidden md:text-2xl"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 backface-hidden md:text-2xl"
               :class="[
                 `reset row-${row}`,
                 currentLetter == column &&
@@ -57,12 +54,18 @@
                 state == GameState.PLAYING
                   ? 'border-neutral-700'
                   : 'border-neutral-800',
+                tileResult(row - 2, column - 1) === LetterStatus.CORRECT &&
+                tileCurrentText(column - 1) === ''
+                  ? 'text-neutral-600'
+                  : '',
               ]"
               @click="() => setCurrentLetter(column, row)"
             >
               {{
                 row - 1 == currentLine
-                  ? tileCurrentText(column - 1)
+                  ? tileResult(row - 2, column - 1) === LetterStatus.CORRECT
+                    ? tileLetter(row - 2, column - 1)
+                    : tileCurrentText(column - 1)
                   : currentLine > row - 1
                     ? tileLetter(row - 1, column - 1)
                     : ""
@@ -96,7 +99,7 @@
       </div>
     </div>
     <div
-      class="fixed right-0 bottom-0 left-0 flex w-full flex-col items-center gap-1 p-1 md:p-4"
+      class="fixed right-0 bottom-0 left-0 flex w-full flex-col items-center gap-1 bg-neutral-900 p-1 md:p-4"
       :class="[
         state != GameState.PLAYING ? 'pointer-events-none opacity-20' : '',
         loading ? 'animate-pulse' : '',
@@ -435,7 +438,9 @@ const reset = async () => {
   if (id.value) {
     try {
       await $trpc.wordle.stop.mutate({ id: id.value });
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
   id.value = "";
 };
