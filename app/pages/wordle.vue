@@ -1,47 +1,30 @@
 <template>
   <div
-    class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 p-8 px-4 text-neutral-200 select-none"
+    class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 px-4 text-neutral-200 select-none"
   >
-    <div class="flex flex-col items-center gap-2">
-      <h1 class="flex items-center gap-4 text-4xl font-bold">Wordle</h1>
-      <div class="flex gap-2">
-        <div
-          class="flex h-10 items-center gap-2 overflow-hidden rounded-xl bg-neutral-700 p-3 text-sm transition-colors hover:bg-neutral-600 active:bg-neutral-600"
-          :title="isDaily ? 'Switch to random' : 'Switch to daily'"
-          @click="toggleDaily"
-        >
-          <span>{{ isDaily ? "Daily" : "Random" }}</span>
-          <LucideCalendarClock v-if="isDaily" class="size-4 text-neutral-200" />
-          <LucideShuffle v-else class="size-4 text-neutral-200" />
-        </div>
-        <div
-          class="rounded-xl bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
-          title="Restart"
-          @click="clear"
-        >
-          <LucideRotateCcw class="size-4 text-neutral-200" />
-        </div>
-        <div
-          class="rounded-xl bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
-          title="Screenshot"
-          @click="screenshot"
-        >
-          <LucideCamera class="size-4 text-neutral-200" />
-        </div>
-        <div
-          v-if="board.length > 0"
-          class="rounded-xl bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
-          title="Give Up"
-          @click="giveup"
-        >
-          <LucideX class="size-4 text-neutral-200" />
+    <PageHeader>
+      <div class="flex items-center gap-4">
+        <h1 class="flex items-center gap-4 text-2xl">Wordle</h1>
+        <div class="flex gap-2">
+          <Button
+            :title="isDaily ? 'Switch to random' : 'Switch to daily'"
+            @click="toggleDaily"
+            :icon="isDaily ? LucideCalendarClock : LucideShuffle"
+          >
+            <span>{{ isDaily ? "Daily" : "Random" }}</span>
+          </Button>
+          <Button title="Restart" @click="clear" :icon="LucideRotateCcw" />
+          <Button title="Screenshot" @click="screenshot" :icon="LucideCamera" />
+          <Button
+            v-if="board.length > 0"
+            title="Give Up"
+            @click="giveup"
+            :icon="LucideX"
+          />
         </div>
       </div>
-    </div>
-    <h3 v-if="error" class="w-full text-center text-red-400">
-      {{ error }}
-    </h3>
-    <div ref="screenshotArea" class="flex flex-col gap-4 bg-neutral-900 p-4">
+    </PageHeader>
+    <div ref="screenshotArea" class="flex flex-col gap-4 mt-4 bg-neutral-900 p-4">
       <div
         v-if="screenshotting"
         class="flex justify-between text-sm text-neutral-400"
@@ -60,10 +43,10 @@
             v-for="column in lettersCount"
             :id="`box-${row}-${column}`"
             :key="`box-${row}-${column}`"
-            class="preserve-3d perspective-1000 relative size-12 lg:size-16"
+            class="preserve-3d perspective-1000 relative size-12 md:size-16"
           >
             <div
-              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 transition-colors backface-hidden lg:text-2xl"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 transition-colors backface-hidden md:text-2xl"
               :class="[
                 `reset row-${row}`,
                 currentLetter == column &&
@@ -110,7 +93,7 @@
       </div>
     </div>
     <div
-      class="flex w-full flex-col items-center gap-1"
+      class="flex w-full flex-col items-center gap-1 fixed left-0 bottom-0 right-0 p-1 md:p-4"
       :class="[
         state != GameState.PLAYING ? 'pointer-events-none opacity-20' : '',
         loading ? 'animate-pulse' : '',
@@ -127,7 +110,7 @@
         <div
           v-for="key in row"
           :key="key"
-          class="flex h-12 lg:h-14 w-20 max-w-full items-center justify-center rounded-xl transition-[filter] hover:brightness-150 active:brightness-150"
+          class="flex h-12 w-20 max-w-full items-center justify-center rounded-xl transition-[filter] hover:brightness-150 active:brightness-150 md:h-14"
           :class="[
             keyhints[key] !== undefined
               ? keyhints[key] === LetterStatus.CORRECT
@@ -193,7 +176,7 @@ useHead({
   title: "Wordle",
 });
 
-const { $trpc } = useNuxtApp();
+const { $trpc, $toast } = useNuxtApp();
 
 const boardRef = useTemplateRef("screenshotArea");
 const screenshotting = ref(false);
@@ -254,7 +237,6 @@ const characters = Characters.replaceAll("\r", "").split("\n");
 
 const word = ref("");
 const id = ref("");
-const error = ref("");
 const loading = ref(false);
 
 const modalOpen = ref(false);
@@ -417,7 +399,7 @@ const submit = async () => {
   } catch (err) {
     if (isTrpcError(err)) {
       if (err.data?.code == "NOT_FOUND") {
-        error.value = err.message;
+        $toast.error(err.message);
       }
     }
 
@@ -442,7 +424,6 @@ const reset = async () => {
   state.value = GameState.PLAYING;
   modalOpen.value = false;
   loading.value = false;
-  error.value = "";
   if (id.value) {
     try {
       await $trpc.wordle.stop.mutate({ id: id.value });

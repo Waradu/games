@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     "@nuxtjs/seo",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
+    "vue-sonner/nuxt"
   ],
 
   site: {
