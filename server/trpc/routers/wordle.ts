@@ -250,4 +250,6 @@ export const wordleRouter = createTRPCRouter({
       state: GameState.PLAYING,
     };
   }),
+
+  check: baseProcedure.input(WordsSchema).query(() => { })
 });

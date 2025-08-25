@@ -46,7 +46,7 @@
             class="preserve-3d perspective-1000 relative size-12 md:size-16"
           >
             <div
-              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl text-neutral-200 backface-hidden md:text-2xl"
+              class="absolute inset-0 flex items-center justify-center rounded-xl border-4 bg-neutral-900 text-xl backface-hidden md:text-2xl"
               :class="[
                 `reset row-${row}`,
                 currentLetter == column &&
@@ -57,7 +57,9 @@
                 tileResult(row - 2, column - 1) === LetterStatus.CORRECT &&
                 tileCurrentText(column - 1) === ''
                   ? 'text-neutral-600'
-                  : '',
+                  : invalid && row - 1 == currentLine
+                    ? 'text-red-300'
+                    : 'text-neutral-200',
               ]"
               @click="() => setCurrentLetter(column, row)"
             >
@@ -244,6 +246,7 @@ const characters = Characters.replaceAll("\r", "").split("\n");
 const word = ref("");
 const id = ref("");
 const loading = ref(false);
+const invalid = ref(false);
 
 const modalOpen = ref(false);
 
@@ -278,7 +281,7 @@ const setCurrentLetter = (column: number, row: number) => {
   currentLetter.value = column;
 };
 
-const addKey = (key: string) => {
+const addKey = async (key: string) => {
   if (key == "⌫") {
     deleteChar();
     return;
@@ -306,13 +309,22 @@ const addKey = (key: string) => {
     { duration: 0.2, ease: "easeOut" },
   );
   currentText.value.splice(currentLetter.value, 0, key.toLowerCase());
+
+  if (currentText.value.length === 5) {
+    try {
+      await $trpc.wordle.check.query(currentText.value.join(""));
+    } catch {
+      invalid.value = true;
+    }
+  }
+
   currentLetter.value += 1;
 };
 
-useKeybind([Key.All], (e) => {
+useKeybind([Key.All], async (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || loading.value) return;
 
-  addKey(e.key);
+  await addKey(e.key);
 });
 
 const deleteChar = () => {
@@ -330,6 +342,7 @@ const deleteChar = () => {
   );
   currentText.value.splice(currentLetter.value - 1, 1);
   currentLetter.value -= 1;
+  invalid.value = false;
 };
 
 useKeybind([Key.Backspace], deleteChar);
@@ -370,6 +383,9 @@ const submit = async () => {
 
   try {
     loading.value = true;
+
+    if (invalid.value) throw new Error();
+
     const result = await $trpc.wordle.guess.mutate({
       word: currentText.value.join(""),
       id: id.value,
@@ -379,6 +395,8 @@ const submit = async () => {
     state.value = result.state;
     board.value = result.board;
     keyhints.value = result.keyboard;
+
+    invalid.value = false;
 
     animate(
       `.row-${currentLine.value + 1}`,
