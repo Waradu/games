@@ -2,7 +2,7 @@
   <div
     class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 p-8 px-4 text-neutral-200 select-none"
   >
-    <div class="flex flex-col items-center gap-1">
+    <div class="flex flex-col items-center gap-2">
       <h1 class="flex items-center gap-4 text-4xl font-bold">Wordle</h1>
       <div class="flex gap-2">
         <div
@@ -110,7 +110,7 @@
       </div>
     </div>
     <div
-      class="flex w-full flex-col items-center gap-1 lg:gap-2"
+      class="flex w-full flex-col items-center gap-1"
       :class="[
         state != GameState.PLAYING ? 'pointer-events-none opacity-20' : '',
         loading ? 'animate-pulse' : '',
@@ -119,7 +119,7 @@
       <div
         v-for="row in keyboard"
         :key="row.toString()"
-        class="grid w-max max-w-full gap-1 lg:gap-2"
+        class="grid w-max max-w-full gap-1"
         :style="{
           gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
         }"
@@ -127,7 +127,7 @@
         <div
           v-for="key in row"
           :key="key"
-          class="flex h-14 w-20 max-w-full items-center justify-center rounded-xl transition-[filter] hover:brightness-150 active:brightness-150"
+          class="flex h-12 lg:h-14 w-20 max-w-full items-center justify-center rounded-xl transition-[filter] hover:brightness-150 active:brightness-150"
           :class="[
             keyhints[key] !== undefined
               ? keyhints[key] === LetterStatus.CORRECT
