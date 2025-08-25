@@ -78,7 +78,7 @@ export default defineNuxtConfig({
     head: {
       title: "Games",
       htmlAttrs: {
-        lang: "en"
+        lang: "en",
       },
       meta: [
         { charset: "utf-8" },
@@ -132,12 +132,17 @@ export default defineNuxtConfig({
         },
       ],
     },
-    devOptions: {
-      enabled: true,
-      suppressWarnings: true,
-      navigateFallback: "/",
-      navigateFallbackAllowlist: [/^\/$/],
-      type: "module",
-    },
   },
+
+  $development: {
+    pwa: {
+      devOptions: {
+        enabled: true,
+        suppressWarnings: true,
+        navigateFallback: "/",
+        navigateFallbackAllowlist: [/^\/$/],
+        type: "module",
+      },
+    }
+  }
 });
