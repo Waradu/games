@@ -1,15 +1,17 @@
 import z from "zod";
+import crypto from "crypto";
 import { baseProcedure, createTRPCRouter } from "~~/server/trpc/init";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { TRPCError } from "@trpc/server";
 import { GameState, LetterStatus, type WordleGuess, type WordleGame, type KeyHints, type WordleBoard } from "~~/shared/types/wordle";
+import { createId } from "@paralleldrive/cuid2";
 
 const Words = readFileSync(join(process.cwd(), "server/assets/wordle/words.txt"), "utf-8");
 const ExtraWords = readFileSync(join(process.cwd(), "server/assets/wordle/extra_words.txt"), "utf-8");
 
-const words = Words.trim().split("\n");
-const extraWords = ExtraWords.trim().split("\n");
+const words = Words.trim().replaceAll("\r", "").split("\n");
+const extraWords = ExtraWords.trim().replaceAll("\r", "").split("\n");
 const Allowed = new Set([...words, ...extraWords]);
 
 const WordsSchema = z.string().refine(
@@ -79,14 +81,31 @@ function checkWordleGuess(word: string, guess: string): LetterStatus[] {
   return result;
 }
 
+
+function getWordOfDay() {
+  const date = new Date().toISOString().split("T")[0] ?? "";
+
+  const hash = crypto
+    .createHash("sha256")
+    .update(date + useRuntimeConfig().salt)
+    .digest("hex");
+
+  const index = parseInt(hash.slice(0, 8), 16) % words.length;
+  return words[index];
+}
+
 export const wordleRouter = createTRPCRouter({
-  start: baseProcedure.mutation(async () => {
+  start: baseProcedure.input(z.object({
+    type: z.enum(["normal", "daily"]),
+    difficulty: z.enum(["easy", "hard"]),
+  })).mutation(async (opts) => {
     const now = Date.now();
+
     sessions.forEach(session => {
       if (now - session.started.getTime() > 24 * 60 * 60 * 1000) sessions.delete(session.id);
     });
 
-    const word = words[Math.floor(Math.random() * words.length)];
+    const word = opts.input.type == "normal" ? words[Math.floor(Math.random() * words.length)] : getWordOfDay();
 
     if (!word) {
       throw new TRPCError({
@@ -95,7 +114,15 @@ export const wordleRouter = createTRPCRouter({
       });
     }
 
-    const game = createWordleGame(word);
+    const game: WordleGame = {
+      id: createId(),
+      word,
+      guesses: [],
+      started: new Date(),
+      type: opts.input.type,
+      difficulty: opts.input.difficulty,
+    };
+
     sessions.set(game.id, game);
 
     return {

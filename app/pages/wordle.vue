@@ -2,9 +2,18 @@
   <div
     class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 p-8 px-4 text-neutral-200 select-none"
   >
-    <h1 class="flex items-center gap-4 text-4xl font-bold">
-      <span>Wordle</span>
+    <div class="flex flex-col items-center gap-1">
+      <h1 class="flex items-center gap-4 text-4xl font-bold">Wordle</h1>
       <div class="flex gap-2">
+        <div
+          class="flex h-10 items-center gap-2 overflow-hidden rounded-xl bg-neutral-700 p-3 text-sm transition-colors hover:bg-neutral-600 active:bg-neutral-600"
+          :title="isDaily ? 'Switch to random' : 'Switch to daily'"
+          @click="toggleDaily"
+        >
+          <span>{{ isDaily ? "Daily" : "Random" }}</span>
+          <LucideCalendarClock v-if="isDaily" class="size-4 text-neutral-200" />
+          <LucideShuffle v-else class="size-4 text-neutral-200" />
+        </div>
         <div
           class="rounded-xl bg-neutral-700 p-3 transition-colors hover:bg-neutral-600 active:bg-neutral-600"
           title="Restart"
@@ -28,7 +37,7 @@
           <LucideX class="size-4 text-neutral-200" />
         </div>
       </div>
-    </h1>
+    </div>
     <h3 v-if="error" class="w-full text-center text-red-400">
       {{ error }}
     </h3>
@@ -42,7 +51,10 @@
           "{{ word.toUpperCase() }}"
         </span>
       </div>
-      <div class="perspective-1000 relative flex flex-col gap-2">
+      <div
+        class="perspective-1000 relative flex flex-col gap-2"
+        :class="loading ? 'animate-pulse' : ''"
+      >
         <div v-for="row in guessCount" :key="row" class="flex gap-2">
           <div
             v-for="column in lettersCount"
@@ -99,9 +111,10 @@
     </div>
     <div
       class="flex w-full flex-col items-center gap-1 lg:gap-2"
-      :class="
-        state != GameState.PLAYING ? 'pointer-events-none opacity-20' : ''
-      "
+      :class="[
+        state != GameState.PLAYING ? 'pointer-events-none opacity-20' : '',
+        loading ? 'animate-pulse' : '',
+      ]"
     >
       <div
         v-for="row in keyboard"
@@ -162,7 +175,13 @@
 import Characters from "~/assets/wordle/characters.txt?raw";
 import { animate, stagger, motion } from "motion-v";
 import { Key } from "@waradu/keyboard";
-import { LucideCamera, LucideRotateCcw, LucideX } from "lucide-vue-next";
+import {
+  LucideCalendarClock,
+  LucideCamera,
+  LucideRotateCcw,
+  LucideShuffle,
+  LucideX,
+} from "lucide-vue-next";
 import { toPng } from "html-to-image";
 import {
   GameState,
@@ -181,6 +200,14 @@ const screenshotting = ref(false);
 
 const keyhints = ref<KeyHints>({});
 const board = ref<WordleBoard>([]);
+
+const daily = useRouteQuery("daily");
+const isDaily = computed(() => daily.value !== undefined);
+
+const toggleDaily = async () => {
+  daily.value = isDaily.value ? undefined : null;
+  await clear();
+};
 
 const tileAt = (r: number, c: number) => board.value?.[r]?.[c] ?? null;
 const tileLetter = (r: number, c: number) =>
@@ -223,11 +250,12 @@ const keyboard = [
 
 const state = ref<GameState>(GameState.PLAYING);
 
-const characters = Characters.split("\n");
+const characters = Characters.replaceAll("\r", "").split("\n");
 
 const word = ref("");
 const id = ref("");
 const error = ref("");
+const loading = ref(false);
 
 const modalOpen = ref(false);
 
@@ -247,7 +275,7 @@ enum LetterStatus {
 const { confetti } = useConfetti();
 
 const setCurrentLetter = (column: number, row: number) => {
-  if (row - 1 != currentLine.value) return;
+  if (row - 1 != currentLine.value || loading.value) return;
 
   if (column - 1 > currentText.value.length) {
     currentLetter.value = currentText.value.length;
@@ -289,13 +317,18 @@ const addKey = (key: string) => {
 };
 
 useKeybind([Key.All], (e) => {
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.ctrlKey || e.metaKey || e.altKey || loading.value) return;
 
   addKey(e.key);
 });
 
 const deleteChar = () => {
-  if (currentLetter.value == 0 || state.value != GameState.PLAYING) return;
+  if (
+    currentLetter.value == 0 ||
+    state.value != GameState.PLAYING ||
+    loading.value
+  )
+    return;
 
   animate(
     `#box-${currentLine.value + 1}-${currentLetter.value}`,
@@ -309,30 +342,47 @@ const deleteChar = () => {
 useKeybind([Key.Backspace], deleteChar);
 
 useKeybind([Key.ArrowLeft], () => {
-  if (currentLetter.value == 0) return;
+  if (currentLetter.value == 0 || loading.value) return;
   currentLetter.value = currentLetter.value - 1;
 });
 
 useKeybind([Key.ArrowRight], () => {
   if (
     currentLetter.value == 5 ||
-    currentLetter.value == currentText.value.length
+    currentLetter.value == currentText.value.length ||
+    loading.value
   )
     return;
   currentLetter.value = currentLetter.value + 1;
 });
 
 const submit = async () => {
+  if (loading.value) return;
+
+  if (!id.value) {
+    loading.value = true;
+    const game = await $trpc.wordle.start.mutate({
+      difficulty: "easy",
+      type: isDaily.value ? "daily" : "normal",
+    });
+    loading.value = false;
+
+    id.value = game.id;
+  }
+
   if (state.value != GameState.PLAYING) {
     clear();
     return;
   }
 
   try {
+    loading.value = true;
     const result = await $trpc.wordle.guess.mutate({
       word: currentText.value.join(""),
       id: id.value,
     });
+    loading.value = false;
+
     state.value = result.state;
     board.value = result.board;
     keyhints.value = result.keyboard;
@@ -371,6 +421,8 @@ const submit = async () => {
       }
     }
 
+    loading.value = false;
+
     animate(
       `.row-${currentLine.value + 1}`,
       { rotate: [0, -5, 10, -5, 10, -5, 0], opacity: [1, 0.5, 1] },
@@ -389,10 +441,14 @@ const reset = async () => {
   currentText.value = [];
   state.value = GameState.PLAYING;
   modalOpen.value = false;
+  loading.value = false;
   error.value = "";
-  if (id.value) await $trpc.wordle.stop.mutate({ id: id.value });
-  const game = await $trpc.wordle.start.mutate();
-  id.value = game.id;
+  if (id.value) {
+    try {
+      await $trpc.wordle.stop.mutate({ id: id.value });
+    } catch {}
+  }
+  id.value = "";
 };
 
 onMounted(async () => {
@@ -400,6 +456,8 @@ onMounted(async () => {
 });
 
 const giveup = async () => {
+  if (loading.value) return;
+
   const result = await $trpc.wordle.stop.mutate({
     id: id.value,
   });
@@ -410,8 +468,10 @@ const giveup = async () => {
   modalOpen.value = true;
 };
 
-const clear = () => {
-  reset();
+const clear = async () => {
+  if (loading.value) return;
+
+  await reset();
 
   animate(`.reset`, { rotateX: 0 }, { duration: 0 });
 

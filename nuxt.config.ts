@@ -41,6 +41,10 @@ export default defineNuxtConfig({
     ]
   },
 
+  runtimeConfig: {
+    salt: ""
+  },
+
   $production: {
     app: {
       head: {

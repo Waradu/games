@@ -13,6 +13,7 @@
         "@trpc/server": "^11.5.0",
         "@vite-pwa/nuxt": "^1.0.4",
         "@vueuse/nuxt": "^13.7.0",
+        "@vueuse/router": "^13.7.0",
         "@waradu/keyboard": "^5.3.6",
         "eslint": "^9.33.0",
         "html-to-image": "^1.11.13",
@@ -25,7 +26,7 @@
         "tailwindcss": "^4.1.12",
         "trpc-nuxt": "^1.2.0",
         "vue": "^3.5.19",
-        "vue-router": "^4.5.1",
+        "vue-router": "4",
         "ws": "^8.18.3",
         "zod": "^4.0.17",
       },
@@ -852,6 +853,8 @@
     "@vueuse/metadata": ["@vueuse/metadata@13.7.0", "", {}, "sha512-8okFhS/1ite8EwUdZZfvTYowNTfXmVCOrBFlA31O0HD8HKXhY+WtTRyF0LwbpJfoFPc+s9anNJIXMVrvP7UTZg=="],
 
     "@vueuse/nuxt": ["@vueuse/nuxt@13.7.0", "", { "dependencies": { "@nuxt/kit": "^4.0.3", "@vueuse/core": "13.7.0", "@vueuse/metadata": "13.7.0", "local-pkg": "^1.1.1" }, "peerDependencies": { "nuxt": "^3.0.0 || ^4.0.0-0", "vue": "^3.5.0" } }, "sha512-LYSitaGaTowchiXQVqIO7aJ2M2qpwAjxhkAbAXhplJ2GAnKUgPGaVauai3u97LJUbI1cU8/e0b6fYOi3RTUF6g=="],
+
+    "@vueuse/router": ["@vueuse/router@13.7.0", "", { "dependencies": { "@vueuse/shared": "13.7.0" }, "peerDependencies": { "vue": "^3.5.0", "vue-router": "^4.0.0" } }, "sha512-nsl86yjQ/RNeSf3KDY9QnAWQxfPQAfXFHANC4GhDGNW+BXYRPVqh2+hXLn8K/EoD2dwZ2apsCqgLYwNfLLM+tw=="],
 
     "@vueuse/shared": ["@vueuse/shared@13.7.0", "", { "peerDependencies": { "vue": "^3.5.0" } }, "sha512-Wi2LpJi4UA9kM0OZ0FCZslACp92HlVNw1KPaDY6RAzvQ+J1s7seOtcOpmkfbD5aBSmMn9NvOakc8ZxMxmDXTIg=="],
 

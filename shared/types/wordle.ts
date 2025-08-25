@@ -20,6 +20,8 @@ export interface WordleGame {
   word: string;
   guesses: WordleGuess[],
   started: Date;
+  type: "normal" | "daily";
+  difficulty: "easy" | "hard";
 }
 
 export type WordleBoard = {

@@ -9,6 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "start": "bun run .output/server/index.mjs",
+    "salt": "bun ./server/gen-salt.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -22,6 +23,7 @@
     "@trpc/server": "^11.5.0",
     "@vite-pwa/nuxt": "^1.0.4",
     "@vueuse/nuxt": "^13.7.0",
+    "@vueuse/router": "^13.7.0",
     "@waradu/keyboard": "^5.3.6",
     "eslint": "^9.33.0",
     "html-to-image": "^1.11.13",
@@ -34,7 +36,7 @@
     "tailwindcss": "^4.1.12",
     "trpc-nuxt": "^1.2.0",
     "vue": "^3.5.19",
-    "vue-router": "^4.5.1",
+    "vue-router": "4",
     "ws": "^8.18.3",
     "zod": "^4.0.17"
   },
