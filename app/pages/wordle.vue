@@ -1,10 +1,9 @@
 <template>
   <div
-    class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 px-4 text-neutral-200 select-none"
+    class="dark flex h-max min-h-full w-full flex-col items-center gap-4 bg-neutral-900 px-4 pt-4 text-neutral-200 select-none"
   >
     <PageHeader>
-      <div class="flex items-center gap-4">
-        <h1 class="flex items-center gap-4 text-2xl">Wordle</h1>
+      <div class="flex items-center gap-2">
         <div class="flex gap-2">
           <Button
             :title="isDaily ? 'Switch to random' : 'Switch to daily'"
@@ -24,7 +23,11 @@
         </div>
       </div>
     </PageHeader>
-    <div ref="screenshotArea" class="flex flex-col gap-4 mt-4 bg-neutral-900 p-4">
+    <h1 class="text-4xl font-bold">Wordle</h1>
+    <div
+      ref="screenshotArea"
+      class="flex flex-col gap-4 bg-neutral-900 p-4"
+    >
       <div
         v-if="screenshotting"
         class="flex justify-between text-sm text-neutral-400"
@@ -93,7 +96,7 @@
       </div>
     </div>
     <div
-      class="flex w-full flex-col items-center gap-1 fixed left-0 bottom-0 right-0 p-1 md:p-4"
+      class="fixed right-0 bottom-0 left-0 flex w-full flex-col items-center gap-1 p-1 md:p-4"
       :class="[
         state != GameState.PLAYING ? 'pointer-events-none opacity-20' : '',
         loading ? 'animate-pulse' : '',
@@ -257,7 +260,12 @@ enum LetterStatus {
 const { confetti } = useConfetti();
 
 const setCurrentLetter = (column: number, row: number) => {
-  if (row - 1 != currentLine.value || loading.value) return;
+  if (
+    row - 1 != currentLine.value ||
+    loading.value ||
+    currentText.value.length <= 0
+  )
+    return;
 
   if (column - 1 > currentText.value.length) {
     currentLetter.value = currentText.value.length;
